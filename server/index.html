@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>test</title>
+</head>
+<body>
+    <form action="http://localhost:3000/login" method="post">
+        <br><br>
+        <h1>LOGIN</h1>
+        <br><br>
+        <input id="login-email" type="email" placeholder="email">
+        <br><br>
+        <input id="login-password" type="password" placeholder="password">
+        <br><br>
+        <button type="submit">Post</button>
+    </form>
+
+    <script>
+        document.querySelector('form').addEventListener('submit', async(e)=>{
+            e.preventDefault();
+
+            const email = document.getElementById('login-email').value;
+            const password = document.getElementById('login-password').value
+
+            const response = await fetch('http://localhost:5500/login', {
+                method: 'POST',
+                headers: {'Content-Type' : 'application/json'},
+                body: JSON.stringify({email, password}),
+            })
+
+            
+
+            console.log()
+        })
+    </script>
+</body>
+</html>
