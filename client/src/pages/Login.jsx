@@ -1,5 +1,6 @@
 import axios from 'axios'
 import { useState } from 'react'
+import { Navigate, redirect } from 'react-router-dom'
 
 export default function Login() {
     const [email, setEmail] = useState('')
@@ -28,6 +29,7 @@ export default function Login() {
         console.log(localStorage.getItem('token'))
         })
 
+        redirect('/dashboard')
     }
     return (
         <div className="h-screen bg-red-100 flex justify-center items-center">

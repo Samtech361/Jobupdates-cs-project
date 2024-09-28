@@ -4,6 +4,8 @@ import Dashboard from './pages/Dashboard'
 import Navbar from './components/Navbar'
 import Login from './pages/Login'
 import Register from './pages/Register'
+import PrivateRoute from './utils/PrivateRoute'
+import UserProfile from './pages/userProfile'
 
 
 function App() {
@@ -12,8 +14,11 @@ function App() {
       <Navbar />
           <Routes>
             <Route path='/dashboard' element={<Dashboard/>} />
-            <Route path='/' element={<Login/>} />
+            <Route element={<PrivateRoute/>}>
+              <Route path='/profile' element={<UserProfile/>}/>
+            </Route>
             <Route path='/register' element={<Register/>}/>
+            <Route path='/' element={<Login/>}/>
           </Routes>
       
     </>
