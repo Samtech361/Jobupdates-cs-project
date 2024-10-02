@@ -1,10 +1,11 @@
 import axios from 'axios'
 import { useState } from 'react'
-import { Navigate, redirect } from 'react-router-dom'
+import { Navigate, useNavigate} from 'react-router-dom'
 
 export default function Login() {
     const [email, setEmail] = useState('')
     const [password, setPassword] = useState('')
+    const navigate =useNavigate();
 
     const handleSubmit = async(e) => {
         e.preventDefault();
@@ -16,20 +17,20 @@ export default function Login() {
         body: JSON.stringify({email, password})
        })
 
-       .then(response =>{
-        if(!response.ok){
-            throw new Error('error')
-        }
-        return response.json();
-       })
+    //    .then(response =>{
+    //     if(!response.ok){
+    //         throw new Error('error')
+    //     }
+    //     return response.json();
+    //    })
 
-       .then(data => {
-        localStorage.setItem('token', data.token)
+    //    .then(data => {
+    //     localStorage.setItem('token', data.token)
 
-        console.log(localStorage.getItem('token'))
-        })
-
-        redirect('/dashboard')
+    //     // console.log(localStorage.getItem('token'))
+    //     })
+    //     alert('login successful')
+    //     navigate('/dashboard')
     }
     return (
         <div className="h-screen bg-red-100 flex justify-center items-center">
