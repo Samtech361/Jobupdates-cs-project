@@ -2,11 +2,14 @@
 import { useState } from 'react'
 import { Navigate, useNavigate} from 'react-router-dom'
 import axios from '../components/axios'
+import {ToastContainer, toast} from 'react-toastify'
+import 'react-toastify/dist/ReactToastify.css'
 
 export default function Login() {
     const [email, setEmail] = useState('')
     const [password, setPassword] = useState('')
     const navigate =useNavigate();
+    
 
     const handleSubmit = async(e) => {
         e.preventDefault();
@@ -20,17 +23,20 @@ export default function Login() {
                 }
             )
 
-            if(response.data.success){
-                console.log('user verified')
+            if(response.status){
+                toast.success(response.data.message)  
             }
-                
+
             setEmail('');
             setPassword('')
-        } catch (error) {
-            console.log({
-                'error': error
-            });
+
+            setTimeout(()=>{
+                navigate('/dashboard')
+            }, 2000)
             
+        } catch (error) {
+            console.log(error)
+            toast.error(error.response.data.message)
         }
 
     //    .then(response =>{
@@ -61,6 +67,11 @@ export default function Login() {
                 </form>
             </div>
 
+            <ToastContainer 
+                position='top-right'
+                autoClose={2000}
+                theme='colored'
+            />
         </div>
     )
 }

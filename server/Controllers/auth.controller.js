@@ -1,28 +1,47 @@
-module.exports.login_user = (req, res) => {
-    const { email, password } = req.body
-    console.log(email)
+const User = require('../models/users.models')
 
-    res.send({
-        'message': 'data received successfully',
-        success: false
-    })
-  const user = [{
-    "email" : "test@gmail.com",
-    "password" : 1234
-  }]
- 
-    if( email !== user.email && password !== user.password){
-        console.log('user details correct');
+module.exports.login_user = async(req, res) => {
+    try {
+        const {email, password} = req.body
         
-    }else{
-        return Error('invalid email or password')
+        const user = await User.findOne({email: email})
+
+        if(!user) {
+            return res.status(400).send({message:'User Not Found'})
+        }
+        
+        const ismatch = password === user.password       
+        if(!ismatch) {
+            return res.status(400).send({message: 'Invalid Email or Password'})
+        }
+
+        res.send({
+            username: user.username,
+            id: user._id,
+            message: 'Login successful'
+        })
+
+        
+    } catch (error) {
+        res.send(error.message)
     }
- 
 }
 
-module.exports.registerUser = (req, res) =>{
-    const {username, email, password} = req.body
-    const user = [username, email, password]
+module.exports.registerUser = async(req, res) =>{
+    try {
+        const {username, email, password} = req.body
+    
+        const existingUser = await User.findOne({email: email})
+        if(existingUser) throw new Error('User already exists')
+        
+        const user = new User({username, email, password})
 
-    console.log(user)
+        user.save();
+
+        console.log(user)
+    } catch (error) {
+        console.log(error.message)
+    }
+    
+    
 }

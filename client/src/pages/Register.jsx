@@ -1,5 +1,6 @@
-import axios from 'axios'
+import axios from '../components/axios'
 import React, { useState } from 'react'
+
 
 export default function Register() {
   const [username, setUsername] = useState('')
@@ -9,39 +10,48 @@ export default function Register() {
   const registerUser =async(e) => {
     e.preventDefault()
 
-  //  const response = await fetch('http://localhost:5500/register', {
-  //   method: 'POST',
-  //   headers: {'Content-type' :  'application/json'},
-  //   body: JSON.stringify({username, email, password})
-  //  })
-    console.log('Submited', {username, email})
+    try {
+      const response = await axios.post('/register',
+        {username, email, password},
+        {
+          withCredentials:true,
+          headers: {"Content-Type":"application/json"}
+        }
+      )
 
-   setUsername('')
-   setEmail('')
-   setPassword('')
-   console.log(``)
+      data = response.data;
+
+      console.log(data)
+      
+    } catch (error) {
+      
+    }
+    
+    setPassword('')
+    setUsername('')
+    setEmail('')
   }
 
-  const test = (e) => {
-
-  }
   return (
     <main>
       <div className='flex flex-col w-96' onSubmit={registerUser}>
         <h1>Sign Up</h1>
-        <form action="" className='flex flex-col'>
+        <br />
+        <form action="" className='flex flex-col ml-2'>
           <input type="text" placeholder='username' required value={username} onChange={(e)=>{
             setUsername(e.target.value)
           }}
           
           />
+          <br />
           <input type="email" placeholder='email' required value={email} onChange={(e)=>{
             setEmail(e.target.value)
           }}/>
+          <br />
           <input type="password" placeholder='password' required value={password} onChange={(e)=>{
             setPassword(e.target.value)
           }}/>
-
+          <br />
           <button type='submit'>Sign Up</button>
         </form>
       </div>
