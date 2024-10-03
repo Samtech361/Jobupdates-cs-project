@@ -1,6 +1,7 @@
-import axios from 'axios'
+
 import { useState } from 'react'
 import { Navigate, useNavigate} from 'react-router-dom'
+import axios from '../components/axios'
 
 export default function Login() {
     const [email, setEmail] = useState('')
@@ -9,13 +10,28 @@ export default function Login() {
 
     const handleSubmit = async(e) => {
         e.preventDefault();
-        console.log(email, password)
 
-       const response = await fetch('http://localhost:5500/login',{
-        method: 'post',
-        headers: {'Content-Type' : 'application/json'},
-        body: JSON.stringify({email, password})
-       })
+        try {
+            const response = await axios.post('/login',
+                {email, password},
+                {
+                    header: {"Content-Type" : "application/json"},
+                    withCredentials: true
+                }
+            )
+
+            if(response.data.success){
+                console.log('user verified')
+            }
+                
+            setEmail('');
+            setPassword('')
+        } catch (error) {
+            console.log({
+                'error': error
+            });
+            
+        }
 
     //    .then(response =>{
     //     if(!response.ok){
@@ -33,7 +49,7 @@ export default function Login() {
     //     navigate('/dashboard')
     }
     return (
-        <div className="h-screen bg-red-100 flex justify-center items-center">
+        <div className="h-screen flex justify-center items-center">
             <div className="h-auto w-80 flex flex-col items-center bg-slate-50 p-8 rounded-3xl">
                 <h1 className="mb-4">Sign In</h1>
                 <p>Enter your details to sign in</p>
