@@ -38,21 +38,6 @@ export default function Login() {
             console.log(error)
             toast.error(error.response.data.message)
         }
-
-    //    .then(response =>{
-    //     if(!response.ok){
-    //         throw new Error('error')
-    //     }
-    //     return response.json();
-    //    })
-
-    //    .then(data => {
-    //     localStorage.setItem('token', data.token)
-
-    //     // console.log(localStorage.getItem('token'))
-    //     })
-    //     alert('login successful')
-    //     navigate('/dashboard')
     }
     return (
         <div className="h-screen flex justify-center items-center">

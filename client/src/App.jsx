@@ -6,6 +6,7 @@ import Login from './pages/Login'
 import Register from './pages/Register'
 import PrivateRoute from './utils/PrivateRoute'
 import UserProfile from './pages/userProfile'
+import Upload from './pages/Upload'
 
 
 function App() {
@@ -19,6 +20,7 @@ function App() {
             </Route>
             <Route path='/register' element={<Register/>}/>
             <Route path='/' element={<Login/>}/>
+            <Route path='/upload' element={<Upload/>} />
           </Routes>
       
     </>

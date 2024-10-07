@@ -1,4 +1,5 @@
 import React from 'react'
+import Filter from '../components/Filter';
 
 function Dashboard() {
   const JobListing = ({ title, company, location, description, salary, postedTime }) => (
@@ -45,7 +46,7 @@ function Dashboard() {
 
       <div className="flex">
         <div className="w-1/4 pr-6">
-          <p>filters</p>
+          <Filter/>
         </div>
         <div className="w-3/4">
           <p className="text-gray-600 mb-4">250 Jobs results</p>
