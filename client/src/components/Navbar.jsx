@@ -31,8 +31,10 @@ export default function Navbar() {
             </button>
             <div className="ml-3 relative">
               <div>
-                <button className="flex text-sm border-2 border-transparent rounded-full focus:outline-none focus:border-green-300" id="user-menu" aria-haspopup="true">
+                <button className="flex text-sm border-2 border-transparent rounded-full focus:outline-none focus:border-green-300 overflow-hidden" id="user-menu" aria-haspopup="true">
+                  <NavLink to='/profile'>
                   <img className="h-8 w-8 rounded-full" alt="User profile" />
+                  </NavLink>
                 </button>
               </div>
             </div>

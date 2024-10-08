@@ -7,7 +7,7 @@ function userProfile() {
       <h1>
         Upload Resume
       </h1>
-      <button><NavLink to='/upload'></NavLink></button>
+      <button><NavLink to='/upload'>upload</NavLink></button>
     </div>
   )
 }

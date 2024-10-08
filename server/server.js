@@ -16,6 +16,11 @@ app.use(express.json())
 
 app.post('/login', login_user) 
 app.post('/register', registerUser)
+app.post('/jobsearch', (req,res)=>{
+    const data = req.body.query
+
+    res.json({message:"Data received"})
+})
     
 
 port = 5500

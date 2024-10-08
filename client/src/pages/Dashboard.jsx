@@ -1,7 +1,10 @@
-import React from 'react'
+import React, { useState } from 'react'
 import Filter from '../components/Filter';
+import axios from '../components/axios';
 
 function Dashboard() {
+  const [query, setQuery] = useState('');
+
   const JobListing = ({ title, company, location, description, salary, postedTime }) => (
     <div className="border-b border-gray-200 py-4">
       <h3 className="text-lg font-semibold">{title}</h3>
@@ -18,31 +21,54 @@ function Dashboard() {
       </div>
     </div>
   );
+
+  const HandleSearch = async(e) => {
+    e.preventDefault();
+    
+    try {
+      const results = await axios.post('/jobsearch',
+        {query},
+        {
+          headers: {"Content-Type":"application/json"},
+          withCredentials: true
+        }
+      )
+
+      .then((results)=>{
+        console.log(results.data.message)
+      })
+    } catch (error) {
+      
+    }
+  }
   return (
     <div className="max-w-5xl mx-auto px-4 py-8">
       <h1 className="text-3xl font-bold mb-6">Find your dream job</h1>
       <p className="mb-6 text-gray-600">Looking for jobs? Browse our latest job openings to view & apply to the best jobs today!</p>
       
-      <div className="flex mb-6">
+      <form className="flex mb-6" onSubmit={HandleSearch} id='search_form'>
         <div className="flex-grow mr-4">
-          <div className="relative">
+          <div className="relative ">
             <input
               type="text"
               placeholder="Search job title or keyword"
               className="w-full pl-10 pr-4 py-2 border rounded-md"
+              onChange={(e)=>{
+                setQuery(e.target.value)
+              }}
             />
            
           </div>
         </div>
-        <input
+        {/* <input
           type="text"
           placeholder="Country or timezone"
           className="w-1/3 px-4 py-2 border rounded-md"
-        />
+        /> */}
         <button className="ml-4 px-6 py-2 bg-green-600 text-white rounded-md hover:bg-green-700 transition duration-300">
           Find jobs
         </button>
-      </div>
+      </form>
 
       <div className="flex">
         <div className="w-1/4 pr-6">
