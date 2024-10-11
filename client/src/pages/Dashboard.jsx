@@ -5,14 +5,19 @@ import axios from '../components/axios';
 function Dashboard() {
   const [query, setQuery] = useState('');
   const [jobListings, setJobListing] = useState([])
+  const [filteredJobListings, setFilteredJobListings] = useState([]);
   const [isLoading, setIsLoading] = useState(false)
 
-  useEffect(() => {
-    console.log('Job')
-  })
+  //state for filters
+  const [jobType, setJobType] = useState([]);
+  const [location, setLocation] = useState("");
+  const [datePost, setDatePost] = useState("anytime");
+
+  useEffect(()=>{
+    applyFilters();
+  }, [jobListings, jobType, location, datePost])
 
   const JobListing = ({ title, company, location, description, salary, postedTime }) => (
-
     <div className="border-b border-gray-200 py-4">
       <h3 className="text-lg font-semibold">{title}</h3>
       <div className="flex items-center text-sm text-gray-600 mt-1">
@@ -42,10 +47,46 @@ function Dashboard() {
       )
 
       setJobListing(results.data)
-
+      .then(setQuery(""))
       setIsLoading(false)
+      
     } catch (error) {
       setIsLoading(false)
+    }
+  }
+
+  const applyFilters = ()=>{
+    let filtered = [...jobListings]
+
+    if(jobType.length > 0){ //filter by jobtype
+      filtered = filtered.filter(job => jobType.includes(job.type));
+    }
+
+    if(location){ //filter by location
+      filtered = filtered.filter(job => jobType.location === location)
+    }
+
+    if(datePost !== "anytime"){
+      const now = new Date(); 
+      filtered = filtered.filter(job=>{
+        const postedDate = new Date(job.postedTime)
+        const diffTime = Math.abs(now - postedDate)
+        const diffDays = Math.ceil(diffTime/(1000*60*60*24))
+
+        switch(datePost){
+          case "last24hours":
+            return diffDays <= 1
+
+          case "last7days":
+            return diffDays <= 7;
+          
+          case "last30days":
+            return diffDays <= 30
+          
+          default:
+            return true
+        }
+      })
     }
   }
   return (
@@ -60,6 +101,7 @@ function Dashboard() {
               type="text"
               placeholder="Search job title or keyword"
               className="w-full pl-10 pr-4 py-2 border rounded-md"
+              value={query}
               onChange={(e) => {
                 setQuery(e.target.value)
               }}
