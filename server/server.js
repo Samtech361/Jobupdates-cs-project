@@ -14,18 +14,44 @@ app.use(cors({
 
 app.use(express.json())
 
-app.post('/login', login_user) 
+app.post('/login', login_user)
 app.post('/register', registerUser)
-app.post('/jobsearch', (req,res)=>{
+app.post('/jobsearch', (req, res) => {
     const data = req.body.query
 
-    res.json({message:"Data received"})
+    res.json(
+        [
+            {
+                'title': "Product Designer",
+                "company": "Upscale Hiring",
+                "location": "Marina East, Singapore",
+                "description": "Within this role you will be creating content for a wide range of local and international clients. This role is suited to Bali based creatives looking to work in-house.",
+                "salary": "$8000-$12000",
+                "postedTime": "5 mins ago"
+            },
+            {
+                'title': "Software Engineering",
+                "company": "Upscale Hiring",
+                "location": "Marina East, Singapore",
+                "description": "Within this role you will be creating content for a wide range of local and international clients. This role is suited to Bali based creatives looking to work in-house.",
+                "salary": "$8000-$12000",
+                "postedTime": "5 mins ago"
+            },
+            {
+                'title': "Backend Developer",
+                "company": "Upscale Hiring",
+                "location": "Marina East, Singapore",
+                "description": "Within this role you will be creating content for a wide range of local and international clients. This role is suited to Bali based creatives looking to work in-house.",
+                "salary": "$8000-$12000",
+                "postedTime": "5 mins ago"
+            }
+        ])
 })
-    
+
 
 port = 5500
 
 
-app.listen(port, ()=> {
+app.listen(port, () => {
     console.log(`server listening on http://localhost:${port}`)
 })
