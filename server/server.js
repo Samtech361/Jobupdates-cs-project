@@ -35,6 +35,7 @@ app.post('/jobsearch', (req, res) => {
                 "location": "Marina East, Singapore",
                 "description": "Within this role you will be creating content for a wide range of local and international clients. This role is suited to Bali based creatives looking to work in-house.",
                 "salary": "$8000-$12000",
+                "type": 'full-time',
                 "postedTime": "5 mins ago"
             },
             {

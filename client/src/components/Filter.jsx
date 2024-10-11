@@ -1,39 +1,22 @@
-import { useState } from "react";
+import React from "react";
 
-const FilterComponent = () => {
-  const [jobType, setJobType] = useState([]);
-  const [salaryRange, setSalaryRange] = useState("");
-  const [location, setLocation] = useState("");
-  const [datePost, setDatePost] = useState("anytime");
-
+const FilterComponent = ({ jobType, salaryRange, location, datePost, onFilterChange }) => {
   const handleJobTypeChange = (type) => {
-    setJobType((prevTypes) =>
-      prevTypes.includes(type)
-        ? prevTypes.filter((item) => item !== type)
-        : [...prevTypes, type]
-    );
+    const updatedJobType = jobType.includes(type)
+      ? jobType.filter((item) => item !== type)
+      : [...jobType, type];
+    onFilterChange('jobType', updatedJobType);
   };
 
-  const handleSalaryRangeChange = (range) => {
-    setSalaryRange(range);
-  };
-
-  const handleLocationChange = (loc) => {
-    setLocation(loc);
-  };
-
-  const clearAllFilters = () => {
-    setJobType([]);
-    setSalaryRange("");
-    setLocation("");
-    setDatePost("anytime");
-  };
+  const handleClearAll = () => {
+    onFilterChange('clearAll')
+  }
 
   return (
     <div className="p-4 rounded-lg shadow-md max-w-xs ml-4 w-[20vw] max-h-auto mb-3">
       <div className="flex justify-between items-center mb-4">
         <h2 className="text-xl font-bold">Filter</h2>
-        <button onClick={clearAllFilters} className="text-red-500 underline">
+        <button onClick={handleClearAll} className="text-red-500 underline">
           Clear all
         </button>
       </div>
@@ -42,7 +25,7 @@ const FilterComponent = () => {
         <label className="block text-sm font-medium">Date Post</label>
         <select
           value={datePost}
-          onChange={(e) => setDatePost(e.target.value)}
+          onChange={(e) => onFilterChange('datePost', e.target.value)}
           className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
         >
           <option value="anytime">Anytime</option>
@@ -76,7 +59,6 @@ const FilterComponent = () => {
         </div>
       </div>
 
-
       <div className="mb-4">
         <label className="block text-sm font-medium">On-site/remote</label>
         <div className="mt-2 space-y-2">
@@ -86,7 +68,7 @@ const FilterComponent = () => {
                 type="radio"
                 value={loc}
                 checked={location === loc}
-                onChange={() => handleLocationChange(loc)}
+                onChange={() => onFilterChange('location', loc)}
                 className="h-4 w-4 text-green-600 border-gray-300"
               />
               <span className="ml-2">{loc}</span>
