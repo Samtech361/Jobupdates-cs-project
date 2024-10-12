@@ -27,7 +27,9 @@ app.post('/jobsearch', (req, res) => {
                 "location": "Marina East, Singapore",
                 "description": "Within this role you will be creating content for a wide range of local and international clients. This role is suited to Bali based creatives looking to work in-house.",
                 "salary": "$8000-$12000",
-                "postedTime": "5 mins ago"
+                "postedTime": "5 mins ago",
+                "type": "Part-time",
+                "locationType": "On-site"
             },
             {
                 'title': "Software Engineering",
@@ -35,8 +37,9 @@ app.post('/jobsearch', (req, res) => {
                 "location": "Marina East, Singapore",
                 "description": "Within this role you will be creating content for a wide range of local and international clients. This role is suited to Bali based creatives looking to work in-house.",
                 "salary": "$8000-$12000",
-                "type": 'full-time',
-                "postedTime": "5 mins ago"
+                "type": 'Full-time',
+                "postedTime": "5 mins ago",
+                "location-type": "Remote"
             },
             {
                 'title': "Backend Developer",
@@ -44,7 +47,9 @@ app.post('/jobsearch', (req, res) => {
                 "location": "Marina East, Singapore",
                 "description": "Within this role you will be creating content for a wide range of local and international clients. This role is suited to Bali based creatives looking to work in-house.",
                 "salary": "$8000-$12000",
-                "postedTime": "5 mins ago"
+                "postedTime": "5 mins ago",
+                "type": "Internship",
+                "locationType": "On-site"
             }
         ])
 })
