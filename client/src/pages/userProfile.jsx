@@ -16,13 +16,13 @@ const userProfile = () => {
       formData.append('resume', file);
 
       try {
-        const response = await axios.post('/api/upload-resume', formData, {
+        const response = await axios.post('/upload-resume', formData, {
           headers: {
             'Content-Type': 'multipart/form-data'
           }
         });
-        setResume(response.data.resumeUrl);
-        console.log('Resume uploaded successfully');
+        // setResume(response.data.resumeUrl);
+        console.log(response);
       } catch (err) {
         setError('Failed to upload resume. Please try again.');
         console.error('Upload error:', err);
@@ -156,7 +156,7 @@ const userProfile = () => {
                     </div>
                   </div>
                 </li>
-                {/* Add more activity items here */}
+                
               </ul>
             </div>
           </div>
