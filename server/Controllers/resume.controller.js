@@ -1,7 +1,7 @@
 const path = require('path');
 const { extractTextFromPDF } = require('../services/pdfService');
 const { extractTextFromDOCX } = require('../services/docxService');
-const { analyzeResume } = require('../services/resumeAnalysisService');
+// const { analyzeResume } = require('../services/resumeAnalysisService');
 
 async function uploadAndScanResume(req, res) {
   if (!req.file) {

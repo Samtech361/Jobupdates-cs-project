@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import axios from 'axios';
+import axios from '../components/axios';
 import { User, Mail, Settings, Bell, FileText, Upload, Eye, Loader } from 'lucide-react';
 
 const userProfile = () => {
@@ -15,13 +15,15 @@ const userProfile = () => {
       const formData = new FormData();
       formData.append('resume', file);
 
+      console.log('File to upload:', file.name, file.type, file.size);
+
       try {
-        const response = await axios.post('/upload-resume', formData, {
+        const response = await axios.post('/api/upload-resume', formData, {
           headers: {
             'Content-Type': 'multipart/form-data'
           }
         });
-        // setResume(response.data.resumeUrl);
+        setResume(response.data.resumeUrl);
         console.log(response);
       } catch (err) {
         setError('Failed to upload resume. Please try again.');

@@ -1,7 +1,7 @@
 const express = require('express');
 const router = express.Router();
 const upload = require('../config/multer');
-const { uploadAndScanResume } = require('../controllers/resumeController');
+const { uploadAndScanResume } = require('../Controllers/resume.controller');
 
 router.post('/upload-resume', upload.single('resume'), uploadAndScanResume);
 
