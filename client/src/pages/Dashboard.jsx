@@ -39,7 +39,7 @@ function Dashboard() {
 
     setIsLoading(true)
     try {
-      const results = await axios.post('/jobsearch',
+      const results = await axios.post('/api/jobsearch',
         { query },
         {
           headers: { "Content-Type": "application/json" },

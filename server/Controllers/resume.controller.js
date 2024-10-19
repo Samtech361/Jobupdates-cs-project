@@ -1,7 +1,7 @@
 const path = require('path');
 const { extractTextFromPDF } = require('../services/pdfService');
 const { extractTextFromDOCX } = require('../services/docxService');
-// const { analyzeResume } = require('../services/resumeAnalysisService');
+const { analyzeResume } = require('../services/resumeAnalysis');
 
 async function uploadAndScanResume(req, res) {
   if (!req.file) {
@@ -18,12 +18,12 @@ async function uploadAndScanResume(req, res) {
       text = await extractTextFromDOCX(filePath);
     }
 
-    // const analysis = analyzeResume(text);
+    const analysis = analyzeResume(text);
 
     res.json({
       message: 'Resume uploaded and scanned successfully',
       resumeUrl: `/uploads/${req.file.filename}`,
-    //   analysis: analysis
+      analysis: analysis
     });
   } catch (error) {
     console.error('Error processing file:', error);
