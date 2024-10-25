@@ -1,59 +1,193 @@
-import { useEffect, useState } from 'react'
+import { useEffect, useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import Filter from '../components/Filter';
 import axios from '../components/axios';
+import { SearchIcon, MapPinIcon, BuildingIcon, Calendar } from 'lucide-react';
 
-function Dashboard() {
+// Helper function to format the description
+const formatDescription = (text) => {
+  if (!text) return '';
+  return text
+    .split('\n')
+    .filter(para => para.trim().length > 0)
+    .join('\n');
+};
+
+// Helper function for time ago
+const getTimeAgo = (postedTime) => {
+  if (!postedTime) return 'Recently';
+  
+  const now = new Date();
+  const posted = new Date(postedTime);
+  const diffInHours = Math.floor((now - posted) / (1000 * 60 * 60));
+  
+  if (diffInHours < 24) return `${diffInHours}h ago`;
+  const diffInDays = Math.floor(diffInHours / 24);
+  if (diffInDays < 30) return `${diffInDays}d ago`;
+  const diffInMonths = Math.floor(diffInDays / 30);
+  return `${diffInMonths}m ago`;
+};
+
+const JobCard = ({ job, onClick }) => {
+  const [isExpanded, setIsExpanded] = useState(false);
+  const maxLength = 250;
+  const formattedDescription = formatDescription(job.description);
+  const isLongDescription = formattedDescription.length > maxLength;
+
+  const displayDescription = isExpanded 
+    ? formattedDescription
+    : formattedDescription.slice(0, maxLength) + (isLongDescription ? '...' : '');
+
+  const handleToggleDescription = (e) => {
+    e.stopPropagation();
+    setIsExpanded(!isExpanded);
+  };
+
+  return (
+    <div 
+      onClick={onClick}
+      className="bg-white rounded-lg shadow-sm border border-gray-200 p-6 hover:shadow-md transition-shadow cursor-pointer"
+    >
+      <div className="flex justify-between items-start mb-4">
+        <div className="flex-grow">
+          <h2 className="text-xl font-semibold text-gray-900 mb-2">
+            {job.title}
+          </h2>
+          <div className="flex flex-wrap gap-4 text-sm text-gray-600">
+            <div className="flex items-center">
+              <BuildingIcon size={16} className="mr-1" />
+              {job.company}
+            </div>
+            <div className="flex items-center">
+              <MapPinIcon size={16} className="mr-1" />
+              {job.location}
+            </div>
+            <div className="flex items-center">
+              <Calendar size={16} className="mr-1" />
+              {getTimeAgo(job.postedTime)}
+            </div>
+          </div>
+        </div>
+        {job.matchPercentage && (
+          <div className="ml-4">
+            <div 
+              className="text-sm font-medium px-3 py-1 rounded-full"
+              style={{
+                backgroundColor: `rgba(34, 197, 94, ${job.matchPercentage / 100})`,
+                color: job.matchPercentage > 50 ? 'white' : 'black'
+              }}
+            >
+              {job.matchPercentage}% Match
+            </div>
+          </div>
+        )}
+      </div>
+
+      {/* Job Type and Salary */}
+      <div className="flex flex-wrap gap-3 mb-4">
+        {job.type && (
+          <span className="px-3 py-1 bg-blue-50 text-blue-700 rounded-full text-sm">
+            {job.type}
+          </span>
+        )}
+        {job.locationType && (
+          <span className="px-3 py-1 bg-purple-50 text-purple-700 rounded-full text-sm">
+            {job.locationType}
+          </span>
+        )}
+        {job.salary && (
+          <span className="px-3 py-1 bg-green-50 text-green-700 rounded-full text-sm">
+            {job.salary}
+          </span>
+        )}
+      </div>
+
+      {/* Description */}
+      <div className="text-gray-600 text-sm">
+        <div className="whitespace-pre-line">
+          {displayDescription}
+        </div>
+        {isLongDescription && (
+          <button
+            onClick={handleToggleDescription}
+            className="text-blue-600 hover:text-blue-800 mt-2 text-sm font-medium"
+          >
+            {isExpanded ? 'Show less' : 'Show more'}
+          </button>
+        )}
+      </div>
+
+      {/* Requirements Preview */}
+      {job.requirements && job.requirements.length > 0 && (
+        <div className="mt-4">
+          <h3 className="text-sm font-medium text-gray-900 mb-2">Key Requirements:</h3>
+          <ul className="list-disc list-inside text-sm text-gray-600">
+            {job.requirements.slice(0, 3).map((req, index) => (
+              <li key={index} className="truncate">{req}</li>
+            ))}
+          </ul>
+        </div>
+      )}
+    </div>
+  );
+};
+
+const JobListings = () => {
+  const navigate = useNavigate();
   const [query, setQuery] = useState("");
-  const [jobListings, setJobListing] = useState([])
-  const [filteredJobListings, setFilteredJobListings] = useState([])
-  const [isLoading, setIsLoading] = useState(false)
+  const [jobListings, setJobListings] = useState([]);
+  const [filteredJobListings, setFilteredJobListings] = useState([]);
+  const [isLoading, setIsLoading] = useState(false);
+  const [error, setError] = useState(null);
 
-  // state for filters
+  // Filter states
   const [jobType, setJobType] = useState([]);
   const [salaryRange, setSalaryRange] = useState("");
   const [location, setLocation] = useState("");
   const [datePost, setDatePost] = useState("anytime");
 
-  useEffect(() => {
-    applyFilters();
-  }, [jobListings, jobType, salaryRange, location, datePost])
-
-  const JobListing = ({ title, company, location, description, salary, postedTime }) => (
-    <div className="border-b border-gray-200 py-4">
-      <h3 className="text-lg font-semibold">{title}</h3>
-      <div className="flex items-center text-sm text-gray-600 mt-1">
-        <span>{company}</span>
-        <span className="mx-2">•</span>
-        <span>{location}</span>
-      </div>
-      <p className="mt-2 text-sm text-gray-700">{description}</p>
-      <div className="mt-2 flex items-center text-sm">
-        <span className="text-green-600 font-semibold">{salary}</span>
-        <span className="ml-auto text-gray-500">Posted {postedTime}</span>
-      </div>
-    </div>
-  );
-
-  const HandleSearch = async (e) => {
+  const handleSearch = async (e) => {
     e.preventDefault();
+    setIsLoading(true);
+    setError(null);
 
-    setIsLoading(true)
     try {
-      const results = await axios.post('/api/jobsearch',
+      const response = await axios.post('/api/jobsearch',
         { query },
         {
           headers: { "Content-Type": "application/json" },
           withCredentials: true
         }
-      )
+      );
 
-      setJobListing(results.data)
-      setIsLoading(false)
-      setQuery("")
+      // Get match percentages
+      const jobsWithMatch = await Promise.all(
+        response.data.map(async (job) => {
+          try {
+            const matchResponse = await axios.post('/api/match-percentage',
+              { jobId: job.id },
+              {
+                headers: { "Content-Type": "application/json" },
+                withCredentials: true
+              }
+            );
+            return { ...job, matchPercentage: matchResponse.data.percentage };
+          } catch (error) {
+            console.error('Error fetching match percentage:', error);
+            return { ...job, matchPercentage: null };
+          }
+        })
+      );
+
+      setJobListings(jobsWithMatch);
+      setQuery("");
     } catch (error) {
-      setIsLoading(false)
+      setError('Failed to fetch jobs. Please try again.');
+      console.error('Error:', error);
+    } finally {
+      setIsLoading(false);
     }
-  }
+  };
 
   const applyFilters = () => {
     let filtered = [...jobListings];
@@ -63,7 +197,7 @@ function Dashboard() {
       filtered = filtered.filter(job => jobType.includes(job.type));
     }
 
-    // Filter by location
+    // Filter by location type
     if (location) {
       filtered = filtered.filter(job => job.locationType === location);
     }
@@ -89,9 +223,20 @@ function Dashboard() {
       });
     }
 
-    // Update filteredJobListings state
+    // Sort by match percentage if available
+    filtered.sort((a, b) => {
+      if (a.matchPercentage && b.matchPercentage) {
+        return b.matchPercentage - a.matchPercentage;
+      }
+      return 0;
+    });
+
     setFilteredJobListings(filtered);
-  }
+  };
+
+  useEffect(() => {
+    applyFilters();
+  }, [jobListings, jobType, salaryRange, location, datePost]);
 
   const handleFilterChange = (filterType, value) => {
     switch (filterType) {
@@ -107,52 +252,60 @@ function Dashboard() {
       case 'datePost':
         setDatePost(value);
         break;
-      
       case 'clearAll':
         setJobType([]);
-        setLocation('')
-        setDatePost('anytime')
+        setLocation('');
+        setDatePost('anytime');
+        break;
       default:
         break;
     }
-  }
+  };
 
   return (
-    <div className="max-w-5xl mx-auto px-4 py-8">
-      <h1 className="text-3xl font-bold mb-6">Find your dream job</h1>
-      <p className="mb-6 text-gray-600">Looking for jobs? Browse our latest job openings to view & apply to the best jobs today!</p>
+    <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+      <div className="mb-8">
+        <h1 className="text-3xl font-bold text-gray-900 mb-4">
+          Find your dream job
+        </h1>
+        <p className="text-lg text-gray-600">
+          Browse through thousands of full-time and part-time jobs near you
+        </p>
+      </div>
 
-      <form className="flex mb-6" onSubmit={HandleSearch} id='search_form'>
-        <div className="flex-grow mr-4">
-          <div className="relative ">
+      {/* Search Form */}
+      <form onSubmit={handleSearch} className="mb-8">
+        <div className="flex gap-4">
+          <div className="flex-grow relative">
+            <SearchIcon className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" size={20} />
             <input
               type="text"
-              placeholder="Search job title or keyword"
-              className="w-full pl-10 pr-4 py-2 border rounded-md"
+              placeholder="Job title, keywords, or company"
               value={query}
-              onChange={(e) => {
-                setQuery(e.target.value)
-              }}
+              onChange={(e) => setQuery(e.target.value)}
+              className="w-full pl-10 pr-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
               required
             />
-
-            {/* <input
-          type="text"
-          placeholder="Country or timezone"
-          className="w-1/3 px-4 py-2 border rounded-md"
-        /> */}
           </div>
-          
-        
+          <button
+            type="submit"
+            className="px-6 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 focus:ring-2 focus:ring-blue-500 focus:ring-offset-2"
+            disabled={isLoading}
+          >
+            {isLoading ? 'Searching...' : 'Search Jobs'}
+          </button>
         </div>
-
-        <button className="ml-4 px-6 py-2 bg-green-600 text-white rounded-md hover:bg-green-700 transition duration-300">
-          Find jobs
-        </button>
       </form>
 
-      <div className="flex">
-        <div className="w-1/4 pr-6">
+      {error && (
+        <div className="mb-6 p-4 bg-red-50 text-red-700 rounded-lg">
+          {error}
+        </div>
+      )}
+
+      <div className="flex gap-8">
+        {/* Filters */}
+        <div className="w-1/4">
           <Filter
             jobType={jobType}
             salaryRange={salaryRange}
@@ -161,39 +314,39 @@ function Dashboard() {
             onFilterChange={handleFilterChange}
           />
         </div>
-        <div className="w-3/4">
-          <p className="text-gray-600 mb-4">{filteredJobListings.length} Jobs results</p>
-          {
-            isLoading ? (
-              <p>Loading...</p>
-            ) : filteredJobListings && filteredJobListings.length > 0 ? (
-              <div>
-                {filteredJobListings.map((job, index) => (
-                  <div
-                    key={index}
-                    className="bg-white shadow-md rounded-lg p-4 mb-4 border border-gray-200"
-                  >
-                    <div className="flex justify-between items-center">
-                      <JobListing
-                        title={job.title}
-                        company={job.company}
-                        location={job.location}
-                        description={job.description}
-                        salary={job.salary}
-                        postedTime={job.postedTime}
-                      />
-                    </div>
-                  </div>
-                ))}
+
+        {/* Job Listings */}
+        <div className="flex-grow">
+          <div className="mb-4 flex justify-between items-center">
+            <p className="text-gray-600">
+              {filteredJobListings.length} jobs found
+            </p>
+          </div>
+
+          <div className="space-y-4">
+            {isLoading ? (
+              <div className="text-center py-8">
+                <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto"></div>
+                <p className="mt-4 text-gray-600">Searching for jobs...</p>
               </div>
+            ) : filteredJobListings.length > 0 ? (
+              filteredJobListings.map((job) => (
+                <JobCard
+                  key={job.id}
+                  job={job}
+                  onClick={() => navigate(`/job/${job.id}`)}
+                />
+              ))
             ) : (
-              <p>No jobs found</p>
-            )
-          }
+              <div className="text-center py-8">
+                <p className="text-gray-600">No jobs found. Try adjusting your search or filters.</p>
+              </div>
+            )}
+          </div>
         </div>
       </div>
     </div>
-  )
-}
+  );
+};
 
-export default Dashboard
+export default JobListings;
