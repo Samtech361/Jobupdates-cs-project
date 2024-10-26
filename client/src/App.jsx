@@ -7,7 +7,7 @@ import Register from './pages/Register'
 import PrivateRoute from './utils/PrivateRoute'
 import UserProfile from './pages/userProfile'
 import Upload from './pages/Upload'
-
+import JobDetailPage from "./components/JobDetailPage"
 
 function App() {
   return (
@@ -21,6 +21,7 @@ function App() {
             <Route path='/register' element={<Register/>}/>
             <Route path='/' element={<Login/>}/>
             <Route path='/upload' element={<Upload/>} />
+            <Route path="/job/:id" element={<JobDetailPage />} />
           </Routes>
       
     </>

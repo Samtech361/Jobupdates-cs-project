@@ -160,26 +160,28 @@ const JobListings = () => {
         }
       );
 
+      localStorage.setItem('lastSearchQuery', query);
+      setJobListings(response.data);
       // Get match percentages
-      const jobsWithMatch = await Promise.all(
-        response.data.map(async (job) => {
-          try {
-            const matchResponse = await axios.post('/api/match-percentage',
-              { jobId: job.id },
-              {
-                headers: { "Content-Type": "application/json" },
-                withCredentials: true
-              }
-            );
-            return { ...job, matchPercentage: matchResponse.data.percentage };
-          } catch (error) {
-            console.error('Error fetching match percentage:', error);
-            return { ...job, matchPercentage: null };
-          }
-        })
-      );
+      // const jobsWithMatch = await Promise.all(
+      //   response.data.map(async (job) => {
+      //     try {
+      //       const matchResponse = await axios.post('/api/match-percentage',
+      //         { jobId: job.id },
+      //         {
+      //           headers: { "Content-Type": "application/json" },
+      //           withCredentials: true
+      //         }
+      //       );
+      //       return { ...job, matchPercentage: matchResponse.data.percentage };
+      //     } catch (error) {
+      //       console.error('Error fetching match percentage:', error);
+      //       return { ...job, matchPercentage: null };
+      //     }
+      //   })
+      // );
 
-      setJobListings(jobsWithMatch);
+      // setJobListings(jobsWithMatch);
       setQuery("");
     } catch (error) {
       setError('Failed to fetch jobs. Please try again.');
@@ -334,7 +336,9 @@ const JobListings = () => {
                 <JobCard
                   key={job.id}
                   job={job}
-                  onClick={() => navigate(`/job/${job.id}`)}
+                  onClick={() => navigate(`/job/${job.id}`, {
+                    state: { searchQuery: query }
+                  })}
                 />
               ))
             ) : (
