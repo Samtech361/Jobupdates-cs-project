@@ -135,7 +135,16 @@ const JobCard = ({ job, onClick }) => {
 const JobListings = () => {
   const navigate = useNavigate();
   const [query, setQuery] = useState("");
-  const [jobListings, setJobListings] = useState([]);
+  const [jobListings, setJobListings] = useState(() => {
+    // Initialize from localStorage if available
+    const saved = localStorage.getItem('jobListings');
+    return saved ? JSON.parse(saved) : [];
+  });
+
+  useEffect(() => {
+    localStorage.setItem('jobListings', JSON.stringify(jobListings));
+  }, [jobListings]);
+
   const [filteredJobListings, setFilteredJobListings] = useState([]);
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState(null);
@@ -161,7 +170,14 @@ const JobListings = () => {
       );
 
       localStorage.setItem('lastSearchQuery', query);
-      setJobListings(response.data);
+    
+      const jobsWithTimestamp = response.data.map(job => ({
+        ...job,
+        timestamp: new Date(job.postedTime).getTime() || Date.now()
+      }));
+
+      setJobListings(jobsWithTimestamp);
+
       // Get match percentages
       // const jobsWithMatch = await Promise.all(
       //   response.data.map(async (job) => {
