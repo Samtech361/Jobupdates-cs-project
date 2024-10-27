@@ -16,7 +16,7 @@ const UserProfile = () => {
     try {
       const token = localStorage.getItem('token');
       if (!token) {
-        setError('No authentication token found');
+        setError('Please Log In to Continue');
         setLoading(false);
         return;
       }

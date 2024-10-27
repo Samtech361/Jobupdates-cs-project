@@ -14,12 +14,12 @@ function App() {
     <>
       <Navbar />
           <Routes>
-            <Route path='/dashboard' element={<Dashboard/>} />
+            <Route path='/' element={<Dashboard/>} />
             <Route element={<PrivateRoute/>}>
               <Route path='/profile' element={<UserProfile/>}/>
             </Route>
             <Route path='/register' element={<Register/>}/>
-            <Route path='/' element={<Login/>}/>
+            <Route path='/login' element={<Login/>}/>
             <Route path='/upload' element={<Upload/>} />
             <Route path="/job/:id" element={<JobDetailPage />} />
           </Routes>

@@ -86,8 +86,8 @@ export default function Register() {
       // Store the token
       localStorage.setItem('token', response.data.token);
       
-      // Redirect to profile page or dashboard
-      navigate('/dashboard');
+      // Redirect to dashboard
+      navigate('/');
       
     } catch (error) {
       setGeneralError(

@@ -1,5 +1,5 @@
 const mongoose = require('mongoose');
-const bcrypt = require('bcrypt'); // Add this for password hashing
+const bcrypt = require('bcrypt');
 
 const userSchema = new mongoose.Schema({
   username: {
@@ -45,7 +45,7 @@ const userSchema = new mongoose.Schema({
   }]
 }, { timestamps: true });
 
-// Add password hashing middleware
+// password hashing middleware
 userSchema.pre('save', async function(next) {
   if (!this.isModified('password')) return next();
   try {
@@ -57,7 +57,7 @@ userSchema.pre('save', async function(next) {
   }
 });
 
-// Add method to compare passwords
+// method to compare passwords
 userSchema.methods.comparePassword = async function(candidatePassword) {
   return await bcrypt.compare(candidatePassword, this.password);
 };

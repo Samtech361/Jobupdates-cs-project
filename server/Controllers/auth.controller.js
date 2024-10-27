@@ -2,7 +2,7 @@ const User = require('../models/users.models');
 const jwt = require('jsonwebtoken');
 const bcrypt = require('bcrypt');
 
-const JWT_SECRET = process.env.JWT_SECRET || 'your-secret-key'; // Use environment variable in production
+const JWT_SECRET = process.env.JWT_SECRET || 'your-secret-key'; 
 
 // Generate JWT token
 const generateToken = (user) => {
@@ -81,7 +81,7 @@ module.exports.registerUser = async (req, res) => {
   }
 };
 
-// Add middleware to protect routes
+// middleware to protect routes
 module.exports.authenticateToken = async (req, res, next) => {
   try {
     const authHeader = req.headers.authorization;
@@ -101,5 +101,30 @@ module.exports.authenticateToken = async (req, res, next) => {
     next();
   } catch (error) {
     res.status(401).json({ message: 'Invalid token' });
+  }
+};
+
+module.exports.refreshToken = async (req, res) => {
+  try {
+    // The user will be available from the authenticateToken middleware
+    const user = req.user;
+    
+    // Generate new token
+    const token = generateToken(user);
+    
+    res.status(200).json({
+      message: 'Token refreshed successfully',
+      token,
+      user: {
+        id: user._id,
+        username: user.username,
+        email: user.email,
+        jobTitle: user.jobTitle,
+        resumeUrl: user.resumeUrl,
+        avatar: user.avatar
+      }
+    });
+  } catch (error) {
+    res.status(500).json({ message: 'Failed to refresh token', error: error.message });
   }
 };

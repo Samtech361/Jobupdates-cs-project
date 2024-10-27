@@ -1,8 +1,9 @@
-import { useEffect, useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import Filter from '../components/Filter';
 import axios from '../components/axios';
-import { SearchIcon, MapPinIcon, BuildingIcon, Calendar } from 'lucide-react';
+import { SearchIcon, MapPinIcon, BuildingIcon, Calendar, SlidersHorizontal } from 'lucide-react';
+
 
 // Helper function to format the description
 const formatDescription = (text) => {

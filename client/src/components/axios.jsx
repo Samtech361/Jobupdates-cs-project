@@ -1,11 +1,12 @@
 import axios from 'axios';
+import { checkAndRefreshToken } from '../utils/tokenRefresh';
 
 const instance = axios.create({
-  baseURL: 'http://localhost:5500', // Make sure this matches your backend URL
+  baseURL: 'http://localhost:5500',
   timeout: 5000,
 });
 
-// Add a request interceptor to automatically add the token
+//request interceptor to automatically add the token
 instance.interceptors.request.use(
   (config) => {
     const token = localStorage.getItem('token');
@@ -19,7 +20,26 @@ instance.interceptors.request.use(
   }
 );
 
-// Add a response interceptor for better error handling
+// //axios interceptor to automatically refresh token
+// instance.interceptors.request.use(
+//   async (config) => {
+//     try {
+//       const token = await checkAndRefreshToken();
+//       if (token) {
+//         config.headers.Authorization = `Bearer ${token}`;
+//       }
+//       return config;
+//     } catch (error) {
+//       return Promise.reject(error);
+//     }
+//   },
+//   (error) => {
+//     return Promise.reject(error);
+//   }
+// );
+
+
+//response interceptor for better error handling
 instance.interceptors.response.use(
   (response) => response,
   (error) => {
