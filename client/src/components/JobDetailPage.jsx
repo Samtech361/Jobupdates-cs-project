@@ -14,10 +14,10 @@ function JobDetailPage() {
       try {
         setIsLoading(true);
         setError(null);
-        
+
         // Get the last search query from localStorage
         const searchQuery = localStorage.getItem('lastSearchQuery');
-        
+
         // Make the API call with both the ID and search query
         const response = await axios.get(`/api/jobs/${id}`, {
           params: { searchQuery },
@@ -151,19 +151,20 @@ function JobDetailPage() {
         )}
 
         {job.applyUrl && (
-          <div className="flex justify-center">
+          <div className="mt-4 flex justify-end">
             <a
-              href={job.applyUrl}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="bg-green-600 text-white px-8 py-3 rounded-lg hover:bg-green-700 transition-colors"
-            >
-              Apply Now
-            </a>
-          </div>
-        )}
-      </div>
+            href={job.applyUrl}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700 transition-colors text-sm"
+            onClick={(e) => e.stopPropagation()}
+          >
+            Quick Apply
+          </a>
+        </div>
+      )}
     </div>
+    </div >
   );
 }
 

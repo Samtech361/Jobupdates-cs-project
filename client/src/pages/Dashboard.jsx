@@ -16,11 +16,11 @@ const formatDescription = (text) => {
 // Helper function for time ago
 const getTimeAgo = (postedTime) => {
   if (!postedTime) return 'Recently';
-  
+
   const now = new Date();
   const posted = new Date(postedTime);
   const diffInHours = Math.floor((now - posted) / (1000 * 60 * 60));
-  
+
   if (diffInHours < 24) return `${diffInHours}h ago`;
   const diffInDays = Math.floor(diffInHours / 24);
   if (diffInDays < 30) return `${diffInDays}d ago`;
@@ -34,7 +34,7 @@ const JobCard = ({ job, onClick }) => {
   const formattedDescription = formatDescription(job.description);
   const isLongDescription = formattedDescription.length > maxLength;
 
-  const displayDescription = isExpanded 
+  const displayDescription = isExpanded
     ? formattedDescription
     : formattedDescription.slice(0, maxLength) + (isLongDescription ? '...' : '');
 
@@ -44,7 +44,7 @@ const JobCard = ({ job, onClick }) => {
   };
 
   return (
-    <div 
+    <div
       onClick={onClick}
       className="bg-white rounded-lg shadow-sm border border-gray-200 p-6 hover:shadow-md transition-shadow cursor-pointer"
     >
@@ -70,7 +70,7 @@ const JobCard = ({ job, onClick }) => {
         </div>
         {job.matchPercentage && (
           <div className="ml-4">
-            <div 
+            <div
               className="text-sm font-medium px-3 py-1 rounded-full"
               style={{
                 backgroundColor: `rgba(34, 197, 94, ${job.matchPercentage / 100})`,
@@ -132,6 +132,15 @@ const JobCard = ({ job, onClick }) => {
   );
 };
 
+//sorting function
+const sortJobs = (jobs, order) => {
+  return [...jobs].sort((a, b) => {
+    const dateA = new Date(a.postedTime).getTime() || 0;
+    const dateB = new Date(b.postedTime).getTime() || 0;
+    return order === 'newest' ? dateB - dateA : dateA - dateB;
+  });
+};
+
 const JobListings = () => {
   const navigate = useNavigate();
   const [query, setQuery] = useState("");
@@ -148,6 +157,7 @@ const JobListings = () => {
   const [filteredJobListings, setFilteredJobListings] = useState([]);
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState(null);
+  const [sortOrder, setSortOrder] = useState('newest');
 
   // Filter states
   const [jobType, setJobType] = useState([]);
@@ -170,7 +180,7 @@ const JobListings = () => {
       );
 
       localStorage.setItem('lastSearchQuery', query);
-    
+
       const jobsWithTimestamp = response.data.map(job => ({
         ...job,
         timestamp: new Date(job.postedTime).getTime() || Date.now()
@@ -321,24 +331,35 @@ const JobListings = () => {
         </div>
       )}
 
-      <div className="flex gap-8">
+      <div className="flex flex-col lg:flex-row gap-6">
         {/* Filters */}
-        <div className="w-1/4">
-          <Filter
+        <div className="w-full lg:w-64 flex-shrink-0">
+          <div className="sticky top-4">
+            <Filter
             jobType={jobType}
             salaryRange={salaryRange}
             location={location}
             datePost={datePost}
             onFilterChange={handleFilterChange}
           />
+          </div>
+          
         </div>
 
         {/* Job Listings */}
-        <div className="flex-grow">
+        <div className="flex-1 min-w-0">
           <div className="mb-4 flex justify-between items-center">
             <p className="text-gray-600">
               {filteredJobListings.length} jobs found
             </p>
+            <select
+              value={sortOrder}
+              onChange={(e) => setSortOrder(e.target.value)}
+              className="border rounded-md px-3 py-1.5 text-sm"
+            >
+              <option value="newest">Newest First</option>
+              <option value="oldest">Oldest First</option>
+            </select>
           </div>
 
           <div className="space-y-4">
@@ -348,13 +369,11 @@ const JobListings = () => {
                 <p className="mt-4 text-gray-600">Searching for jobs...</p>
               </div>
             ) : filteredJobListings.length > 0 ? (
-              filteredJobListings.map((job) => (
+              sortJobs(filteredJobListings, sortOrder).map((job) => (
                 <JobCard
                   key={job.id}
                   job={job}
-                  onClick={() => navigate(`/job/${job.id}`, {
-                    state: { searchQuery: query }
-                  })}
+                  onClick={() => navigate(`/job/${job.id}`)}
                 />
               ))
             ) : (
