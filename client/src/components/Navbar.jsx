@@ -1,11 +1,12 @@
 import React, { useState, useEffect } from 'react';
 import { Link, NavLink, useNavigate, useLocation } from 'react-router-dom';
-import { User, LogOut, Menu, X, Search, Building2, Upload, Info } from 'lucide-react';
+import { User, LogOut, Menu, X, Search, Building2, Upload, Info, LogIn } from 'lucide-react';
 
 export default function Navbar() {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [isProfileDropdownOpen, setIsProfileDropdownOpen] = useState(false);
   const [scrolled, setScrolled] = useState(false);
+  const [isAuthenticated, setIsAuthenticated] = useState(false);
   const navigate = useNavigate();
   const location = useLocation();
 
@@ -22,8 +23,15 @@ export default function Navbar() {
     setIsMenuOpen(false);
   }, [location]);
 
+  // Check authentication status
+  useEffect(() => {
+    const token = localStorage.token;
+    setIsAuthenticated(true);
+  }, []);
+
   const handleLogout = () => {
     localStorage.removeItem('token');
+    setIsAuthenticated(false);
     navigate('/login');
   };
 
@@ -80,23 +88,38 @@ export default function Navbar() {
 
                 {/* Profile Dropdown */}
                 {isProfileDropdownOpen && (
-                  <div className="absolute right-0 mt-2 w-48 rounded-xl shadow-lg py-1 bg-white ring-1 ring-black ring-opacity-5 transform opacity-100 scale-100 transition-all duration-200">
-                    <Link
-                      to="/profile"
-                      onClick={() => setIsProfileDropdownOpen(false)}
-                      className="flex items-center px-4 py-2 text-sm text-gray-700 hover:bg-gray-50"
-                    >
-                      <User className="h-4 w-4 mr-2" />
-                      Profile
-                    </Link>
-                    <button
-                      onClick={handleLogout}
-                      onMouseLeave={() => setIsProfileDropdownOpen(false)}
-                      className="flex items-center w-full px-4 py-2 text-sm text-gray-700 hover:bg-gray-50"
-                    >
-                      <LogOut className="h-4 w-4 mr-2" />
-                      Logout
-                    </button>
+                  <div 
+                    className="absolute right-0 mt-2 w-48 rounded-xl shadow-lg py-1 bg-white ring-1 ring-black ring-opacity-5 transform opacity-100 scale-100 transition-all duration-200"
+                    onMouseLeave={() => setIsProfileDropdownOpen(false)}
+                  >
+                    {isAuthenticated ? (
+                      <>
+                        <Link
+                          to="/profile"
+                          onClick={() => setIsProfileDropdownOpen(false)}
+                          className="flex items-center px-4 py-2 text-sm text-gray-700 hover:bg-gray-50"
+                        >
+                          <User className="h-4 w-4 mr-2" />
+                          Profile
+                        </Link>
+                        <button
+                          onClick={handleLogout}
+                          className="flex items-center w-full px-4 py-2 text-sm text-gray-700 hover:bg-gray-50"
+                        >
+                          <LogOut className="h-4 w-4 mr-2" />
+                          Logout
+                        </button>
+                      </>
+                    ) : (
+                      <Link
+                        to="/login"
+                        onClick={() => setIsProfileDropdownOpen(false)}
+                        className="flex items-center px-4 py-2 text-sm text-gray-700 hover:bg-gray-50"
+                      >
+                        <LogIn className="h-4 w-4 mr-2" />
+                        Sign In
+                      </Link>
+                    )}
                   </div>
                 )}
               </div>
@@ -140,24 +163,36 @@ export default function Navbar() {
               </NavLink>
             ))}
             <div className="border-t border-gray-200 my-2" />
-            <Link
-              to="/profile"
-              className="flex items-center px-4 py-2 text-sm font-medium text-gray-600 hover:text-green-600 hover:bg-gray-50 rounded-lg"
-            >
-              <User className="h-5 w-5 mr-3" />
-              Profile
-            </Link>
-            <button
-              onClick={handleLogout}
-              className="flex items-center w-full px-4 py-2 text-sm font-medium text-gray-600 hover:text-green-600 hover:bg-gray-50 rounded-lg"
-            >
-              <LogOut className="h-5 w-5 mr-3" />
-              Logout
-            </button>
+            {isAuthenticated ? (
+              <>
+                <Link
+                  to="/profile"
+                  className="flex items-center px-4 py-2 text-sm font-medium text-gray-600 hover:text-green-600 hover:bg-gray-50 rounded-lg"
+                >
+                  <User className="h-5 w-5 mr-3" />
+                  Profile
+                </Link>
+                <button
+                  onClick={handleLogout}
+                  className="flex items-center w-full px-4 py-2 text-sm font-medium text-gray-600 hover:text-green-600 hover:bg-gray-50 rounded-lg"
+                >
+                  <LogOut className="h-5 w-5 mr-3" />
+                  Logout
+                </button>
+              </>
+            ) : (
+              <Link
+                to="/login"
+                className="flex items-center px-4 py-2 text-sm font-medium text-gray-600 hover:text-green-600 hover:bg-gray-50 rounded-lg"
+              >
+                <LogIn className="h-5 w-5 mr-3" />
+                Sign In
+              </Link>
+            )}
           </div>
         </div>
       </nav>
-      <div className="h-16" /> 
+      <div className="h-16" />
     </>
   );
 }

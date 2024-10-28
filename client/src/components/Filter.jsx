@@ -1,32 +1,25 @@
-import React from "react";
+import React from 'react';
+import { X } from 'lucide-react';
 
-const FilterComponent = ({ jobType, salaryRange, location, datePost, onFilterChange }) => {
-  const handleJobTypeChange = (type) => {
-    const updatedJobType = jobType.includes(type)
-      ? jobType.filter((item) => item !== type)
-      : [...jobType, type];
-    onFilterChange('jobType', updatedJobType);
-  };
-
-  const handleClearAll = () => {
-    onFilterChange('clearAll')
-  }
-
-  return (
-    <div className="p-4 rounded-lg shadow-md max-w-xs ml-4 w-[20vw] max-h-auto mb-3">
-      <div className="flex justify-between items-center mb-4">
-        <h2 className="text-xl font-bold">Filter</h2>
-        <button onClick={handleClearAll} className="text-red-500 underline">
-          Clear all
+const Filter = ({ jobType, location, datePost, onFilterChange, isMobileFilterOpen, setIsMobileFilterOpen }) => {
+  const FilterContent = () => (
+    <div className="space-y-6">
+      <div className="flex justify-between items-center lg:hidden">
+        <h2 className="text-lg font-semibold">Filters</h2>
+        <button 
+          onClick={() => setIsMobileFilterOpen(false)}
+          className="text-gray-500 hover:text-gray-700"
+        >
+          <X size={24} />
         </button>
       </div>
 
-      <div className="mb-4">
-        <label className="block text-sm font-medium">Date Post</label>
+      <div>
+        <h3 className="text-sm font-medium text-gray-900 mb-3">Date Posted</h3>
         <select
           value={datePost}
           onChange={(e) => onFilterChange('datePost', e.target.value)}
-          className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
+          className="w-full rounded-lg border-gray-200 text-sm focus:ring-blue-500 focus:border-blue-500"
         >
           <option value="anytime">Anytime</option>
           <option value="last24hours">Last 24 hours</option>
@@ -35,33 +28,31 @@ const FilterComponent = ({ jobType, salaryRange, location, datePost, onFilterCha
         </select>
       </div>
 
-      <div className="mb-4">
-        <label className="block text-sm font-medium">Job type</label>
-        <div className="mt-2 space-y-2">
-          {[
-            "Full-time",
-            "Part-time",
-            "Freelance",
-            "Internship",
-            "Volunteer",
-          ].map((type) => (
+      <div>
+        <h3 className="text-sm font-medium text-gray-900 mb-3">Job Type</h3>
+        <div className="space-y-3">
+          {["Full-time", "Part-time", "Freelance", "Internship", "Volunteer"].map((type) => (
             <label key={type} className="flex items-center">
               <input
                 type="checkbox"
-                value={type}
                 checked={jobType.includes(type)}
-                onChange={() => handleJobTypeChange(type)}
-                className="h-4 w-4 text-green-600 border-gray-300 rounded"
+                onChange={() => {
+                  const updatedTypes = jobType.includes(type)
+                    ? jobType.filter(t => t !== type)
+                    : [...jobType, type];
+                  onFilterChange('jobType', updatedTypes);
+                }}
+                className="w-4 h-4 text-blue-600 border-gray-300 rounded focus:ring-blue-500"
               />
-              <span className="ml-2">{type}</span>
+              <span className="ml-3 text-sm text-gray-600">{type}</span>
             </label>
           ))}
         </div>
       </div>
 
-      <div className="mb-4">
-        <label className="block text-sm font-medium">On-site/remote</label>
-        <div className="mt-2 space-y-2">
+      <div>
+        <h3 className="text-sm font-medium text-gray-900 mb-3">Location Type</h3>
+        <div className="space-y-3">
           {["On-site", "Remote", "Hybrid"].map((loc) => (
             <label key={loc} className="flex items-center">
               <input
@@ -69,15 +60,44 @@ const FilterComponent = ({ jobType, salaryRange, location, datePost, onFilterCha
                 value={loc}
                 checked={location === loc}
                 onChange={() => onFilterChange('location', loc)}
-                className="h-4 w-4 text-green-600 border-gray-300"
+                className="w-4 h-4 text-blue-600 border-gray-300 focus:ring-blue-500"
               />
-              <span className="ml-2">{loc}</span>
+              <span className="ml-3 text-sm text-gray-600">{loc}</span>
             </label>
           ))}
         </div>
       </div>
+
+      <button
+        onClick={() => onFilterChange('clearAll')}
+        className="w-full py-2 text-sm text-red-600 hover:text-red-700 font-medium"
+      >
+        Clear all filters
+      </button>
     </div>
+  );
+
+  return (
+    <>
+      {/* Desktop Filter */}
+      <div className="hidden lg:block w-72 flex-none">
+        <div className="sticky top-4 bg-white rounded-xl border border-gray-100 p-6 shadow-sm">
+          <FilterContent />
+        </div>
+      </div>
+
+      {/* Mobile Filter */}
+      <div className={`
+        fixed inset-0 z-40 lg:hidden transform transition-transform duration-300
+        ${isMobileFilterOpen ? 'translate-x-0' : '-translate-x-full'}
+      `}>
+        <div className="absolute inset-0 bg-black bg-opacity-50" onClick={() => setIsMobileFilterOpen(false)} />
+        <div className="relative w-full max-w-xs bg-white h-full p-6 overflow-y-auto">
+          <FilterContent />
+        </div>
+      </div>
+    </>
   );
 };
 
-export default FilterComponent;
+export default Filter;

@@ -36,43 +36,39 @@ const JobCard = ({ job, onClick }) => {
   const isLongDescription = formattedDescription.length > maxLength;
 
   const displayDescription = isExpanded
-    ? formattedDescription
-    : formattedDescription.slice(0, maxLength) + (isLongDescription ? '...' : '');
+    ? job.description
+    : `${job.description?.slice(0, maxLength)}${job.description?.length > maxLength ? '...' : ''}`;
 
-  const handleToggleDescription = (e) => {
-    e.stopPropagation();
-    setIsExpanded(!isExpanded);
-  };
 
   return (
-    <div
+    <div 
       onClick={onClick}
-      className="bg-white rounded-lg shadow-sm border border-gray-200 p-6 hover:shadow-md transition-shadow cursor-pointer"
+      className="bg-white rounded-xl p-6 hover:shadow-lg transition-all duration-300 border border-gray-100 group cursor-pointer"
     >
-      <div className="flex justify-between items-start mb-4">
+      <div className="flex justify-between items-start gap-4">
         <div className="flex-grow">
-          <h2 className="text-xl font-semibold text-gray-900 mb-2">
+          <h2 className="text-xl font-semibold text-gray-900 group-hover:text-blue-600 transition-colors">
             {job.title}
           </h2>
-          <div className="flex flex-wrap gap-4 text-sm text-gray-600">
+          <div className="flex flex-wrap gap-3 mt-2 text-sm text-gray-600">
             <div className="flex items-center">
-              <BuildingIcon size={16} className="mr-1" />
+              <BuildingIcon size={16} className="mr-1.5 text-gray-400" />
               {job.company}
             </div>
             <div className="flex items-center">
-              <MapPinIcon size={16} className="mr-1" />
+              <MapPinIcon size={16} className="mr-1.5 text-gray-400" />
               {job.location}
             </div>
             <div className="flex items-center">
-              <Calendar size={16} className="mr-1" />
-              {getTimeAgo(job.postedTime)}
+              <Calendar size={16} className="mr-1.5 text-gray-400" />
+              {job.postedTime}
             </div>
           </div>
         </div>
         {job.matchPercentage && (
-          <div className="ml-4">
+          <div className="flex-shrink-0">
             <div
-              className="text-sm font-medium px-3 py-1 rounded-full"
+              className="text-sm font-medium px-3 py-1.5 rounded-full"
               style={{
                 backgroundColor: `rgba(34, 197, 94, ${job.matchPercentage / 100})`,
                 color: job.matchPercentage > 50 ? 'white' : 'black'
@@ -84,51 +80,40 @@ const JobCard = ({ job, onClick }) => {
         )}
       </div>
 
-      {/* Job Type and Salary */}
-      <div className="flex flex-wrap gap-3 mb-4">
+      <div className="flex flex-wrap gap-2 mt-4">
         {job.type && (
-          <span className="px-3 py-1 bg-blue-50 text-blue-700 rounded-full text-sm">
+          <span className="px-3 py-1.5 bg-blue-50 text-blue-700 rounded-full text-xs font-medium">
             {job.type}
           </span>
         )}
         {job.locationType && (
-          <span className="px-3 py-1 bg-purple-50 text-purple-700 rounded-full text-sm">
+          <span className="px-3 py-1.5 bg-purple-50 text-purple-700 rounded-full text-xs font-medium">
             {job.locationType}
           </span>
         )}
         {job.salary && (
-          <span className="px-3 py-1 bg-green-50 text-green-700 rounded-full text-sm">
+          <span className="px-3 py-1.5 bg-green-50 text-green-700 rounded-full text-xs font-medium">
             {job.salary}
           </span>
         )}
       </div>
 
-      {/* Description */}
-      <div className="text-gray-600 text-sm">
-        <div className="whitespace-pre-line">
+      <div className="mt-4 text-gray-600 text-sm">
+        <div className="prose prose-sm max-w-none">
           {displayDescription}
         </div>
-        {isLongDescription && (
+        {job.description?.length > maxLength && (
           <button
-            onClick={handleToggleDescription}
+            onClick={(e) => {
+              e.stopPropagation();
+              setIsExpanded(!isExpanded);
+            }}
             className="text-blue-600 hover:text-blue-800 mt-2 text-sm font-medium"
           >
             {isExpanded ? 'Show less' : 'Show more'}
           </button>
         )}
       </div>
-
-      {/* Requirements Preview */}
-      {job.requirements && job.requirements.length > 0 && (
-        <div className="mt-4">
-          <h3 className="text-sm font-medium text-gray-900 mb-2">Key Requirements:</h3>
-          <ul className="list-disc list-inside text-sm text-gray-600">
-            {job.requirements.slice(0, 3).map((req, index) => (
-              <li key={index} className="truncate">{req}</li>
-            ))}
-          </ul>
-        </div>
-      )}
     </div>
   );
 };
@@ -144,9 +129,9 @@ const sortJobs = (jobs, order) => {
 
 const JobListings = () => {
   const navigate = useNavigate();
+  const [isMobileFilterOpen, setIsMobileFilterOpen] = useState(false);
   const [query, setQuery] = useState("");
   const [jobListings, setJobListings] = useState(() => {
-    // Initialize from localStorage if available
     const saved = localStorage.getItem('jobListings');
     return saved ? JSON.parse(saved) : [];
   });
@@ -292,96 +277,104 @@ const JobListings = () => {
   };
 
   return (
-    <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-      <div className="mb-8">
-        <h1 className="text-3xl font-bold text-gray-900 mb-4">
-          Find your dream job
-        </h1>
-        <p className="text-lg text-gray-600">
-          Browse through thousands of full-time and part-time jobs near you
-        </p>
-      </div>
+    <div className="min-h-screen bg-gray-50">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+        <div className="mb-8">
+          <h1 className="text-4xl font-bold text-gray-900 mb-4">
+            Find your dream job
+          </h1>
+          <p className="text-lg text-gray-600">
+            Browse through thousands of full-time and part-time jobs near you
+          </p>
+        </div>
 
-      {/* Search Form */}
-      <form onSubmit={handleSearch} className="mb-8">
-        <div className="flex gap-4">
-          <div className="flex-grow relative">
-            <SearchIcon className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" size={20} />
-            <input
-              type="text"
-              placeholder="Job title, keywords, or company"
-              value={query}
-              onChange={(e) => setQuery(e.target.value)}
-              className="w-full pl-10 pr-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-              required
-            />
-          </div>
+        {/* Search Form */}
+        <form onSubmit={handleSearch} className="relative mb-8">
+          <SearchIcon className="absolute left-4 top-1/2 transform -translate-y-1/2 text-gray-400" size={20} />
+          <input
+            type="text"
+            placeholder="Search job title, keywords, or company"
+            value={query}
+            onChange={(e) => setQuery(e.target.value)}
+            className="w-full pl-12 pr-4 py-4 bg-white border border-gray-200 rounded-xl shadow-sm focus:ring-2 focus:ring-blue-500 focus:border-transparent text-gray-900 placeholder-gray-500"
+            required
+          />
           <button
             type="submit"
-            className="px-6 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 focus:ring-2 focus:ring-blue-500 focus:ring-offset-2"
+            className="absolute right-2 top-1/2 transform -translate-y-1/2 px-6 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 focus:ring-2 focus:ring-blue-500 focus:ring-offset-2"
             disabled={isLoading}
           >
             {isLoading ? 'Searching...' : 'Search Jobs'}
           </button>
-        </div>
-      </form>
+        </form>
 
-      {error && (
-        <div className="mb-6 p-4 bg-red-50 text-red-700 rounded-lg">
-          {error}
-        </div>
-      )}
-
-      <div className="flex flex-col lg:flex-row gap-6">
-        {/* Filters */}
-        <div className="w-full lg:w-64 flex-shrink-0">
-          <div className="sticky top-4">
-            <Filter
-            jobType={jobType}
-            salaryRange={salaryRange}
-            location={location}
-            datePost={datePost}
-            onFilterChange={handleFilterChange}
-          />
+        {error && (
+          <div className="mb-6 p-4 bg-red-50 text-red-700 rounded-lg">
+            {error}
           </div>
-          
-        </div>
+        )}
 
-        {/* Job Listings */}
-        <div className="flex-1 min-w-0">
-          <div className="mb-4 flex justify-between items-center">
-            <p className="text-gray-600">
-              {filteredJobListings.length} jobs found
-            </p>
-            <select
-              value={sortOrder}
-              onChange={(e) => setSortOrder(e.target.value)}
-              className="border rounded-md px-3 py-1.5 text-sm"
-            >
-              <option value="newest">Newest First</option>
-              <option value="oldest">Oldest First</option>
-            </select>
+        <div className="flex gap-8">
+          {/* Filters */}
+          <div className="hidden lg:block w-64 flex-shrink-0">
+            <div className="sticky top-4">
+              <Filter
+                jobType={jobType}
+                salaryRange={salaryRange}
+                location={location}
+                datePost={datePost}
+                onFilterChange={handleFilterChange}
+                isMobileFilterOpen={isMobileFilterOpen}
+                setIsMobileFilterOpen={setIsMobileFilterOpen}
+              />
+            </div>
           </div>
 
-          <div className="space-y-4">
-            {isLoading ? (
-              <div className="text-center py-8">
-                <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto"></div>
-                <p className="mt-4 text-gray-600">Searching for jobs...</p>
+          {/* Main Content */}
+          <div className="flex-1">
+            <div className="flex justify-between items-center mb-6">
+              <div className="flex items-center gap-4">
+                <button
+                  onClick={() => setIsMobileFilterOpen(true)}
+                  className="lg:hidden flex items-center gap-2 text-gray-600 hover:text-gray-900"
+                >
+                  <SlidersHorizontal size={20} />
+                  <span>Filters</span>
+                </button>
+                <p className="text-gray-600">
+                  <span className="font-medium">{filteredJobListings.length}</span> jobs found
+                </p>
               </div>
-            ) : filteredJobListings.length > 0 ? (
-              sortJobs(filteredJobListings, sortOrder).map((job) => (
-                <JobCard
-                  key={job.id}
-                  job={job}
-                  onClick={() => navigate(`/job/${job.id}`)}
-                />
-              ))
-            ) : (
-              <div className="text-center py-8">
-                <p className="text-gray-600">No jobs found. Try adjusting your search or filters.</p>
-              </div>
-            )}
+              <select
+                value={sortOrder}
+                onChange={(e) => setSortOrder(e.target.value)}
+                className="border border-gray-200 rounded-lg px-4 py-2 text-sm focus:ring-blue-500 focus:border-blue-500"
+              >
+                <option value="newest">Newest First</option>
+                <option value="oldest">Oldest First</option>
+              </select>
+            </div>
+
+            <div className="space-y-4">
+              {isLoading ? (
+                <div className="text-center py-8">
+                  <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto"></div>
+                  <p className="mt-4 text-gray-600">Searching for jobs...</p>
+                </div>
+              ) : filteredJobListings.length > 0 ? (
+                sortJobs(filteredJobListings, sortOrder).map((job) => (
+                  <JobCard
+                    key={job.id}
+                    job={job}
+                    onClick={() => navigate(`/job/${job.id}`)}
+                  />
+                ))
+              ) : (
+                <div className="text-center py-8">
+                  <p className="text-gray-600">No jobs found. Try adjusting your search or filters.</p>
+                </div>
+              )}
+            </div>
           </div>
         </div>
       </div>

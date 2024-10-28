@@ -42,7 +42,37 @@ const userSchema = new mongoose.Schema({
       type: Date,
       default: Date.now
     }
-  }]
+  }],
+  resumeAnalysis: {
+    basicMetrics: {
+      wordCount: Number,
+      sentenceCount: Number,
+      characterCount: Number,
+      averageWordLength: Number
+    },
+    technicalSkills: {
+      found: [String],
+      frequency: mongoose.Schema.Types.Mixed
+    },
+    softSkills: {
+      found: [String],
+      frequency: mongoose.Schema.Types.Mixed
+    },
+    experience: {
+      totalYears: Number,
+      experiences: [{
+        years: Number,
+        context: String
+      }]
+    },
+    education: {
+      highestDegree: String,
+      degrees: [String]
+    },
+    completenessScore: Number,
+    processedText: String
+  },
+  resumeText: String
 }, { timestamps: true });
 
 // password hashing middleware

@@ -1,5 +1,5 @@
 const axios = require("axios");
-const crypto = require('crypto'); // Built-in Node.js module for generating IDs
+const crypto = require('crypto');
 
 const searchJobs = async (req, res) => {
   const query = req.body.query;

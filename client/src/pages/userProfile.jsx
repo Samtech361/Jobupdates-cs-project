@@ -55,6 +55,7 @@ const UserProfile = () => {
           }
         });
         setResume(response.data.resumeUrl);
+        console.log(response.data.resumeUrl)
         await fetchUserProfile();
       } catch (err) {
         setError('Failed to upload resume');

@@ -1,3 +1,5 @@
+const ResumeAnalysisService = require('./enhancedResumeService');
+
 function analyzeResume(text) {
     const keywords = ['javascript', 'react', 'node', 'express', 'mongodb', 'sql', 'python', 'java', 'c++'];
     const foundKeywords = keywords.filter(keyword => text.toLowerCase().includes(keyword));
@@ -13,5 +15,5 @@ function analyzeResume(text) {
   }
   
   module.exports = {
-    analyzeResume
+    analyzeResume: ResumeAnalysisService.analyzeResume.bind(ResumeAnalysisService)
   };
