@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import axios from '../components/axios';
+import JobMatchScore from './JobMatchScore';
 
 function JobDetailPage() {
   const { id } = useParams();
@@ -104,6 +105,8 @@ function JobDetailPage() {
       >
         ← Back to search results
       </button>
+
+      {job.matchScore && <JobMatchScore matchScore={job.matchScore} />}
 
       <div className="bg-white shadow-lg rounded-lg p-6">
         <div className="flex justify-between items-start mb-6">

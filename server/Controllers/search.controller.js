@@ -1,5 +1,7 @@
 const axios = require("axios");
 const crypto = require('crypto');
+const JobMatchingService = require('../services/matchingService')
+const User = require('../models/users.models')
 
 const searchJobs = async (req, res) => {
   const query = req.body.query;
@@ -146,6 +148,9 @@ const getJobById = async (req, res) => {
   const apiKey = process.env.APIKEY;
 
   try {
+    const user = await User.findById(req.user.id);
+    const hasResume = Boolean(user?.resumeText);
+
     // Fetch jobs using the search query
     const response = await axios.get(
       `https://serpapi.com/search.json?q=${encodeURIComponent(
@@ -153,7 +158,6 @@ const getJobById = async (req, res) => {
       )}&engine=google_jobs&location=United+States&hl=en&api_key=${apiKey}`
     );
 
-    // Check if jobs_results exists in the response
     if (!response.data.jobs_results) {
       return res.status(404).json({ 
         error: 'No jobs found',
@@ -207,6 +211,16 @@ const getJobById = async (req, res) => {
       return res.status(404).json({ 
         error: 'Job not found',
         message: `No job found with id: ${id}`
+      });
+    }
+
+    if (hasResume) {
+      const matchingService = new JobMatchingService();
+      const matchScore = matchingService.calculateMatchScore(job, user.resumeText);
+      console.log(matchScore)
+      return res.status(200).json({
+        ...job,
+        matchScore
       });
     }
     

@@ -27,7 +27,7 @@ module.exports.updateUserProfile = async (req, res) => {
 module.exports.updateResume = async (req, res) => {
   try {
     const user = await User.findById(req.user.id);
-    user.resumeUrl = req.file.path; // Assuming you're using multer for file uploads
+    user.resumeUrl = req.file.path; 
     user.recentActivity.unshift({
       action: 'Updated resume'
     });
