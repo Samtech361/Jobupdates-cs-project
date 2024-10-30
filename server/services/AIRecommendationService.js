@@ -8,8 +8,9 @@ class AIRecommendationService {
     
     this.hfToken = process.env.HUGGING_FACE_API_KEY;
     this.modelEndpoint = "https://api-inference.huggingface.co/models/sentence-transformers/all-MiniLM-L6-v2";
-    // Changed to a more reliable keyword extraction model
     this.keywordModelEndpoint = "https://api-inference.huggingface.co/models/ml6team/keyphrase-extraction-kbir-inspec";
+    // Add Llama model endpoint
+    this.llamaEndpoint = "https://api-inference.huggingface.co/models/meta-llama/Llama-3.1-8B";
     
     this.client = axios.create({
       headers: {
@@ -18,6 +19,38 @@ class AIRecommendationService {
       },
       timeout: 30000
     });
+  }
+
+  async queryLlama(prompt) {
+    try {
+      await this.waitForModel(this.llamaEndpoint);
+      
+      const response = await this.client.post(this.llamaEndpoint, {
+        inputs: prompt
+        // Note: Keeping parameters minimal as per your example
+        // Add parameters if needed:
+        // parameters: {
+        //   max_length: 1000,
+        //   temperature: 0.7,
+        // }
+      });
+
+      if (!response.data) {
+        throw new Error('Empty response from Llama model');
+      }
+
+      // Handle Llama response format
+      if (Array.isArray(response.data)) {
+        return response.data[0].generated_text;
+      } else if (typeof response.data === 'string') {
+        return response.data;
+      } else {
+        return response.data.generated_text || response.data.text;
+      }
+    } catch (error) {
+      console.error('Llama query error:', error);
+      throw this.handleApiError(error);
+    }
   }
 
   async waitForModel(endpoint, isEmbeddingModel = false) {
@@ -156,68 +189,40 @@ class AIRecommendationService {
     return dotProduct / (magnitude1 * magnitude2);
   }
 
-  async getRecommendations(jobDescription, resumeText) {
-    if (!jobDescription || !resumeText) {
-      throw new Error('Both job description and resume text are required');
-    }
-
+  async getEnhancedRecommendations(jobDescription, resumeText) {
+    // First get standard recommendations
+    const baseRecommendations = await this.getRecommendations(jobDescription, resumeText);
+    
     try {
-      console.log('Processing job description and resume...');
-      // Get embeddings and keywords concurrently
-      const [
-        [jobEmbedding, resumeEmbedding],
-        [jobKeywords, resumeKeywords]
-      ] = await Promise.all([
-        Promise.all([
-          this.getEmbeddings(jobDescription),
-          this.getEmbeddings(resumeText)
-        ]),
-        Promise.all([
-          this.extractKeywords(jobDescription),
-          this.extractKeywords(resumeText)
-        ])
-      ]);
+      // Create a prompt for Llama
+      const prompt = `
+        Task: Analyze the match between a job description and resume, then provide specific recommendations.
 
-      console.log('Keywords extracted:', {
-        jobKeywords,
-        resumeKeywords
-      });
+        Job Description: ${jobDescription}
+        Resume: ${resumeText}
+        Match Score: ${baseRecommendations.matchScore}%
+        Missing Keywords: ${baseRecommendations.skillsGapAnalysis.missingKeywords.join(', ')}
+        
+        Please provide:
+        1. Specific suggestions for improving the resume
+        2. Key skills to highlight or develop
+        3. Concrete steps for better alignment with the job requirements
+      `;
 
-      const similarityScore = this.calculateSimilarity(jobEmbedding[0], resumeEmbedding[0]);
-      
-      const missingKeywords = jobKeywords.filter(keyword => 
-        !resumeKeywords.some(resumeKw => 
-          resumeKw.includes(keyword) || keyword.includes(resumeKw)
-        )
-      );
-
-      const matchingKeywords = jobKeywords.filter(keyword => 
-        resumeKeywords.some(resumeKw => 
-          resumeKw.includes(keyword) || keyword.includes(resumeKw)
-        )
-      );
+      const llamaInsights = await this.queryLlama(prompt);
 
       return {
-        matchScore: Math.round(similarityScore * 100),
-        skillsGapAnalysis: {
-          missingKeywords,
-          matchingKeywords
-        },
-        recommendations: [
-          missingKeywords.length > 0 ? "Consider adding these missing keywords to your resume:" : 
-                                     "Your resume contains most of the key skills mentioned in the job description.",
-          ...missingKeywords.map(keyword => `- Include experience or skills related to ${keyword}`),
-          this.getOverallRecommendation(similarityScore)
-        ],
-        suggestedModifications: {
-          addKeywords: missingKeywords,
-          overallMatch: this.getMatchLevel(similarityScore),
-          confidence: this.getConfidenceLevel(jobKeywords.length, resumeKeywords.length)
-        }
+        ...baseRecommendations,
+        aiInsights: llamaInsights,
+        enhancedRecommendations: [
+          ...baseRecommendations.recommendations,
+          "AI-Generated Insights:",
+          llamaInsights
+        ]
       };
     } catch (error) {
-      console.error('Error in recommendation generation:', error);
-      throw new Error(`Failed to generate resume recommendations: ${error.message}`);
+      console.warn('Llama enhancement failed, returning base recommendations:', error);
+      return baseRecommendations;
     }
   }
 

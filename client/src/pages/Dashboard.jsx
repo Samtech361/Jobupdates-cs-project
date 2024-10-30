@@ -41,7 +41,7 @@ const JobCard = ({ job, onClick }) => {
 
 
   return (
-    <div 
+    <div
       onClick={onClick}
       className="bg-white rounded-xl p-6 hover:shadow-lg transition-all duration-300 border border-gray-100 group cursor-pointer"
     >
@@ -173,27 +173,6 @@ const JobListings = () => {
       }));
 
       setJobListings(jobsWithTimestamp);
-
-      // Get match percentages
-      // const jobsWithMatch = await Promise.all(
-      //   response.data.map(async (job) => {
-      //     try {
-      //       const matchResponse = await axios.post('/api/match-percentage',
-      //         { jobId: job.id },
-      //         {
-      //           headers: { "Content-Type": "application/json" },
-      //           withCredentials: true
-      //         }
-      //       );
-      //       return { ...job, matchPercentage: matchResponse.data.percentage };
-      //     } catch (error) {
-      //       console.error('Error fetching match percentage:', error);
-      //       return { ...job, matchPercentage: null };
-      //     }
-      //   })
-      // );
-
-      // setJobListings(jobsWithMatch);
       setQuery("");
     } catch (error) {
       setError('Failed to fetch jobs. Please try again.');
@@ -250,7 +229,7 @@ const JobListings = () => {
 
   useEffect(() => {
     applyFilters();
-  }, [jobListings, jobType, salaryRange, location, datePost]);
+  }, [jobListings, jobType, salaryRange, location, datePost, sortOrder]);
 
   const handleFilterChange = (filterType, value) => {
     switch (filterType) {
@@ -362,7 +341,7 @@ const JobListings = () => {
                   <p className="mt-4 text-gray-600">Searching for jobs...</p>
                 </div>
               ) : filteredJobListings.length > 0 ? (
-                sortJobs(filteredJobListings, sortOrder).map((job) => (
+                filteredJobListings.map((job) => (
                   <JobCard
                     key={job.id}
                     job={job}

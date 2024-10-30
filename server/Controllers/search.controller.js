@@ -236,25 +236,14 @@ const getJobById = async (req, res) => {
     if (hasResume) {
       const matchingService = new JobMatchingService();
       const matchScore = matchingService.calculateMatchScore(job, user.resumeText);
-      console.log(matchScore)
+      const service = new AIRecommendationService();
+      // const recommendations = await service.getEnhancedRecommendations(job.description, user.resumeText);
+      // console.log(recommendations.aiInsights);
       return res.status(200).json({
         ...job,
         matchScore
       });
     }
-
-    // if (hasResume) {
-    //   const recommendationService = new AIRecommendationService();
-    //   const recommendations = await recommendationService.getRecommendations(
-    //     job.description,
-    //     user.resumeText
-    //   );
-      
-    //   return res.status(200).json({
-    //     ...job,
-    //     recommendations
-    //   });
-    // }
     
     return res.status(200).json(job);
   } catch (error) {
