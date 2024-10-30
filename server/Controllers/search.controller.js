@@ -1,7 +1,8 @@
 const axios = require("axios");
 const crypto = require('crypto');
-const JobMatchingService = require('../services/matchingService')
+const AIRecommendationService = require('../services/AIRecommendationService')
 const User = require('../models/users.models')
+const JobMatchingService = require('../services/matchingService')
 
 const searchJobs = async (req, res) => {
   const query = req.body.query;
@@ -165,6 +166,24 @@ const getJobById = async (req, res) => {
       });
     }
 
+    const formatDescription = (description) => {
+      if (!description) return '';
+      
+      // Normalize line endings and remove extra spaces
+      let formatted = description
+        .replace(/\r\n/g, '\n')
+        .replace(/\s+/g, ' ')
+        .trim();
+        
+      // Add double newlines before bullet points for frontend parsing
+      formatted = formatted
+        .replace(/([.!?])\s*(•|-)/g, '$1\n\n•')
+        .replace(/([.!?])\s*([A-Z])/g, '$1\n\n$2');
+        
+      return formatted;
+    };
+    
+
     // Transform the jobs data using the same mapping as in searchJobs
     const jobs = response.data.jobs_results.map((job) => {
       const extensions = job.detected_extensions || {};
@@ -191,7 +210,7 @@ const getJobById = async (req, res) => {
         title: job.title ? job.title.replace(/[^\w\s,-]/g, '') : '',
         company: job.company_name || '',
         location: job.location || 'Not specified',
-        description: cleanDescription,
+        description: formatDescription(cleanDescription),
         salary: job.salary || extensions.salary || 'Not specified',
         postedTime: extensions.posted_at || job.posted_time || 'Not specified',
         type: extensions.schedule_type || job.job_type || 'Full-time',
@@ -223,6 +242,19 @@ const getJobById = async (req, res) => {
         matchScore
       });
     }
+
+    // if (hasResume) {
+    //   const recommendationService = new AIRecommendationService();
+    //   const recommendations = await recommendationService.getRecommendations(
+    //     job.description,
+    //     user.resumeText
+    //   );
+      
+    //   return res.status(200).json({
+    //     ...job,
+    //     recommendations
+    //   });
+    // }
     
     return res.status(200).json(job);
   } catch (error) {
@@ -233,4 +265,36 @@ const getJobById = async (req, res) => {
     });
   }
 };
-module.exports = {searchJobs, getJobById, searchJobsHandler};
+
+const getJobRecommendations = async (req, res) => {
+  const { id } = req.params;
+  const user = await User.findById(req.user.id);
+  
+  if (!user?.resumeText) {
+    return res.status(400).json({
+      error: 'Resume required',
+      message: 'Please upload your resume to get recommendations'
+    });
+  }
+
+  try {
+    // Get job details first
+    const job = await getJobById(req.params);
+    
+    const aiService = new AIRecommendationService();
+    const recommendations = await aiService.getRecommendations(
+      job.description,
+      user.resumeText
+    );
+
+    res.status(200).json({ recommendations });
+  } catch (error) {
+    console.error('Error in getJobRecommendations:', error);
+    res.status(500).json({
+      error: 'Failed to get recommendations',
+      message: error.message
+    });
+  }
+};
+
+module.exports = {searchJobs, getJobById, searchJobsHandler, getJobRecommendations};
