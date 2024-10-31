@@ -90,7 +90,7 @@ const Filter = ({ jobType, location, datePost, onFilterChange, isMobileFilterOpe
       <div className={`
         fixed inset-0 z-40 lg:hidden transform transition-transform duration-300
         ${isMobileFilterOpen ? 'translate-x-0' : '-translate-x-full'}
-      `}>
+      `}> 
         <div className="absolute inset-0 bg-black bg-opacity-50" onClick={() => setIsMobileFilterOpen(false)} />
         <div className="relative w-full max-w-xs bg-white h-full p-6 overflow-y-auto">
           <FilterContent />

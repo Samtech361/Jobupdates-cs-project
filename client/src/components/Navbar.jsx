@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { Link, NavLink, useNavigate, useLocation } from 'react-router-dom';
 import { User, LogOut, Menu, X, Search, Building2, Upload, Info, LogIn } from 'lucide-react';
+import tokenService from '../utils/tokenRefresh';
 
 export default function Navbar() {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
@@ -25,14 +26,12 @@ export default function Navbar() {
 
   // Check authentication status
   useEffect(() => {
-    const token = localStorage.token;
-    setIsAuthenticated(true);
-  }, []);
+    const token = tokenService.getToken();
+    setIsAuthenticated(!!token && !tokenService.isTokenExpired(token));
+  }, []);;
 
   const handleLogout = () => {
-    localStorage.removeItem('token');
-    setIsAuthenticated(false);
-    navigate('/login');
+    tokenService.logout();
   };
 
   const navItems = [

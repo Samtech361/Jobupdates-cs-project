@@ -37,7 +37,7 @@ const JobDetailPage = () => {
     }
   }, [id]);
 
-  const JobHighlight = ({ icon: Icon, label, value }) => {
+  const JobHighlight = ({ icon: Icon, value }) => {
     if (!value || value === 'Not specified') return null;
     return (
       <div className="flex items-center gap-2 text-gray-600">
@@ -47,6 +47,7 @@ const JobDetailPage = () => {
     );
   };
 
+  //loading animation
   const SkeletonLoader = () => (
     <div className="max-w-7xl mx-auto px-4 py-8">
       <div className="animate-pulse grid grid-cols-1 lg:grid-cols-12 gap-8">
@@ -98,6 +99,7 @@ const JobDetailPage = () => {
 
   if (isLoading) return <SkeletonLoader />;
 
+  //error handler
   if (error) {
     return (
       <div className="max-w-7xl mx-auto px-4 py-8">

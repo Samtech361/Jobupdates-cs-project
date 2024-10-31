@@ -255,35 +255,5 @@ const getJobById = async (req, res) => {
   }
 };
 
-const getJobRecommendations = async (req, res) => {
-  const { id } = req.params;
-  const user = await User.findById(req.user.id);
-  
-  if (!user?.resumeText) {
-    return res.status(400).json({
-      error: 'Resume required',
-      message: 'Please upload your resume to get recommendations'
-    });
-  }
 
-  try {
-    // Get job details first
-    const job = await getJobById(req.params);
-    
-    const aiService = new AIRecommendationService();
-    const recommendations = await aiService.getRecommendations(
-      job.description,
-      user.resumeText
-    );
-
-    res.status(200).json({ recommendations });
-  } catch (error) {
-    console.error('Error in getJobRecommendations:', error);
-    res.status(500).json({
-      error: 'Failed to get recommendations',
-      message: error.message
-    });
-  }
-};
-
-module.exports = {searchJobs, getJobById, searchJobsHandler, getJobRecommendations};
+module.exports = {searchJobs, getJobById, searchJobsHandler};

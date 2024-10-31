@@ -5,9 +5,9 @@ const { extractTextFromPDF } = require('../services/pdfService');
 const { extractTextFromDOCX } = require('../services/docxService');
 const User = require('../models/users.models');
 
-/**
- * Handles resume upload, text extraction, analysis, and user profile update
- */
+
+//Handles resume upload, text extraction, analysis, and user profile update
+ 
 const uploadAndScanResume = async (req, res) => {
   // Track the uploaded file path for cleanup
   let uploadedFilePath = null;
@@ -143,9 +143,8 @@ const uploadAndScanResume = async (req, res) => {
   }
 };
 
-/**
- * Retrieves the latest resume analysis for a user
- */
+
+//Retrieves the latest resume analysis for a user
 const getResumeAnalysis = async (req, res) => {
   try {
     if (!req.user || !req.user.id) {

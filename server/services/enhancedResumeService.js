@@ -1,6 +1,3 @@
-const natural = require('natural');
-const tokenizer = new natural.WordTokenizer();
-
 class ResumeAnalysisService {
   constructor() {
     this.technicalSkills = [

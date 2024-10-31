@@ -43,6 +43,10 @@ const userSchema = new mongoose.Schema({
       default: Date.now
     }
   }],
+  refreshToken: {
+    type: String,
+    select: false
+  },
   resumeAnalysis: {
     basicMetrics: {
       wordCount: Number,

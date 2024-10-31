@@ -1,40 +1,14 @@
-import React, { useEffect, useState } from 'react';
+import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import Filter from '../components/Filter';
 import axios from '../components/axios';
 import { SearchIcon, MapPinIcon, BuildingIcon, Calendar, SlidersHorizontal } from 'lucide-react';
 
 
-// Helper function to format the description
-const formatDescription = (text) => {
-  if (!text) return '';
-  return text
-    .split('\n')
-    .filter(para => para.trim().length > 0)
-    .join('\n');
-};
-
-// Helper function for time ago
-const getTimeAgo = (postedTime) => {
-  if (!postedTime) return 'Recently';
-
-  const now = new Date();
-  const posted = new Date(postedTime);
-  const diffInHours = Math.floor((now - posted) / (1000 * 60 * 60));
-
-  if (diffInHours < 24) return `${diffInHours}h ago`;
-  const diffInDays = Math.floor(diffInHours / 24);
-  if (diffInDays < 30) return `${diffInDays}d ago`;
-  const diffInMonths = Math.floor(diffInDays / 30);
-  return `${diffInMonths}m ago`;
-};
-
 const JobCard = ({ job, onClick }) => {
   const [isExpanded, setIsExpanded] = useState(false);
   const maxLength = 250;
-  const formattedDescription = formatDescription(job.description);
-  const isLongDescription = formattedDescription.length > maxLength;
-
+  
   const displayDescription = isExpanded
     ? job.description
     : `${job.description?.slice(0, maxLength)}${job.description?.length > maxLength ? '...' : ''}`;
@@ -65,19 +39,6 @@ const JobCard = ({ job, onClick }) => {
             </div>
           </div>
         </div>
-        {job.matchPercentage && (
-          <div className="flex-shrink-0">
-            <div
-              className="text-sm font-medium px-3 py-1.5 rounded-full"
-              style={{
-                backgroundColor: `rgba(34, 197, 94, ${job.matchPercentage / 100})`,
-                color: job.matchPercentage > 50 ? 'white' : 'black'
-              }}
-            >
-              {job.matchPercentage}% Match
-            </div>
-          </div>
-        )}
       </div>
 
       <div className="flex flex-wrap gap-2 mt-4">
@@ -118,14 +79,6 @@ const JobCard = ({ job, onClick }) => {
   );
 };
 
-//sorting function
-const sortJobs = (jobs, order) => {
-  return [...jobs].sort((a, b) => {
-    const dateA = new Date(a.postedTime).getTime() || 0;
-    const dateB = new Date(b.postedTime).getTime() || 0;
-    return order === 'newest' ? dateB - dateA : dateA - dateB;
-  });
-};
 
 const JobListings = () => {
   const navigate = useNavigate();

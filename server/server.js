@@ -1,6 +1,7 @@
 const express = require('express')
 require('dotenv').config();
 require('./config/mongodb.connection')
+const cookieParser = require('cookie-parser');
 const cors = require('cors');
 const authRoutes = require('./Routes/auth.Routes')
 const resumeRoutes = require('./Routes/resume.routes')
@@ -15,11 +16,13 @@ app.use(cors({
 }))
 
 app.use(express.json())
+app.use(cookieParser());
 
 app.use('/api', authRoutes)
 app.use('/api', resumeRoutes);
 app.use('/api', searchRoutes)
 app.use('/api', userRoutes)
+
 
 
 

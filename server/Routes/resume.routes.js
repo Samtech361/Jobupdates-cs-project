@@ -5,14 +5,6 @@ const { uploadAndScanResume, getResumeAnalysis } = require('../Controllers/resum
 const auth = require('../config/auth');
 const { validateFileType, validateFileSize } = require('../config/fileValidation');
 
-/**
- * Resume Upload and Analysis Routes
- * 
- * POST /profile/resume - Upload and analyze a new resume
- * GET /profile/resume - Get current resume analysis
- * DELETE /profile/resume - Delete current resume
- */
-
 // Custom error handler for multer errors
 const handleMulterError = (err, req, res, next) => {
   if (err.code === 'LIMIT_FILE_SIZE') {
@@ -38,7 +30,7 @@ router.post('/profile/resume',
   validateFileType(['application/pdf', 
                    'application/msword', 
                    'application/vnd.openxmlformats-officedocument.wordprocessingml.document']),
-  validateFileSize(5 * 1024 * 1024), // 5MB limit
+  validateFileSize(5 * 1024 * 1024),
   uploadAndScanResume
 );
 
