@@ -3,24 +3,26 @@ const crypto = require('crypto');
 const AIRecommendationService = require('../services/AIRecommendationService')
 const User = require('../models/users.models')
 const JobMatchingService = require('../services/matchingService')
+const mockData = require('../MOCK_DATA.json')
 
 const searchJobs = async (req, res) => {
   const query = req.body.query;
   const apiKey = process.env.APIKEY;
 
   try {
-    const response = await axios.get(
-      `https://serpapi.com/search.json?q=${encodeURIComponent(
-        query || "Software developer"
-      )}&engine=google_jobs&location=United+States&hl=en&api_key=${apiKey}`
-    );
+    // const response = await axios.get(
+    //   `https://serpapi.com/search.json?q=${encodeURIComponent(
+    //     query || "Software developer"
+    //   )}&engine=google_jobs&location=United+States&hl=en&api_key=${apiKey}`
+    // );
+    const response = mockData
 
     // Add error checking for jobs_results
-    if (!response.data.jobs_results) {
-      throw new Error('No jobs results found in the API response');
-    }
+    // if (!response.data.jobs_results) {
+    //   throw new Error('No jobs results found in the API response');
+    // }
         
-    const data = response.data.jobs_results.map((job) => {
+    const data = response.jobs_results.map((job) => {
       // Extract schedule type and remote info from extensions
       const extensions = job.detected_extensions || {};
       
@@ -42,7 +44,7 @@ const searchJobs = async (req, res) => {
                       job.apply_link || 
                       job.job_link || 
                       null;
-
+      
       // Extract requirements from the description
       const requirements = extractRequirements(cleanDescription);
 
@@ -126,22 +128,6 @@ const extractRequirements = (description) => {
   return requirements;
 };
 
-const searchJobsHandler = async (req, res) => {
-  try {
-    const query = req.body.query;
-    const apiKey = process.env.APIKEY;
-    
-    const data = await searchJobs(query, apiKey);
-    return res.status(200).json(data);
-  } catch (error) {
-    console.error("Error in searchJobsHandler:", error);
-    return res.status(500).json({ 
-      error: "Failed to fetch jobs",
-      details: error.message,
-      query: req.body.query 
-    });
-  }
-};
 
 const getJobById = async (req, res) => {
   const { id } = req.params;
@@ -153,18 +139,19 @@ const getJobById = async (req, res) => {
     const hasResume = Boolean(user?.resumeText);
 
     // Fetch jobs using the search query
-    const response = await axios.get(
-      `https://serpapi.com/search.json?q=${encodeURIComponent(
-        searchQuery
-      )}&engine=google_jobs&location=United+States&hl=en&api_key=${apiKey}`
-    );
+    // const response = await axios.get(
+    //   `https://serpapi.com/search.json?q=${encodeURIComponent(
+    //     searchQuery
+    //   )}&engine=google_jobs&location=United+States&hl=en&api_key=${apiKey}`
+    // );
 
-    if (!response.data.jobs_results) {
-      return res.status(404).json({ 
-        error: 'No jobs found',
-        message: 'No jobs found for the given search query'
-      });
-    }
+    // if (!response.data.jobs_results) {
+    //   return res.status(404).json({ 
+    //     error: 'No jobs found',
+    //     message: 'No jobs found for the given search query'
+    //   });
+    // }
+    const response = mockData
 
     const formatDescription = (description) => {
       if (!description) return '';
@@ -185,7 +172,7 @@ const getJobById = async (req, res) => {
     
 
     // Transform the jobs data using the same mapping as in searchJobs
-    const jobs = response.data.jobs_results.map((job) => {
+    const jobs = response.jobs_results.map((job) => {
       const extensions = job.detected_extensions || {};
       const cleanDescription = job.description
         ? job.description.replace(/\s+/g, ' ').trim()
@@ -256,4 +243,4 @@ const getJobById = async (req, res) => {
 };
 
 
-module.exports = {searchJobs, getJobById, searchJobsHandler};
+module.exports = {searchJobs, getJobById};

@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Link, NavLink, useNavigate, useLocation } from 'react-router-dom';
+import { Link, NavLink, useLocation } from 'react-router-dom';
 import { User, LogOut, Menu, X, Search, Building2, Upload, Info, LogIn } from 'lucide-react';
 import tokenService from '../utils/tokenRefresh';
 
@@ -8,7 +8,6 @@ export default function Navbar() {
   const [isProfileDropdownOpen, setIsProfileDropdownOpen] = useState(false);
   const [scrolled, setScrolled] = useState(false);
   const [isAuthenticated, setIsAuthenticated] = useState(false);
-  const navigate = useNavigate();
   const location = useLocation();
 
   useEffect(() => {

@@ -1,12 +1,14 @@
 import React, { useEffect, useState } from 'react';
 import axios from '../components/axios';
 import { User, Mail, Settings, Bell, FileText, Upload, Eye, Loader } from 'lucide-react';
+import ResumePreview from '../components/ResumePreview';
 
 const UserProfile = () => {
   const [user, setUser] = useState(null);
   const [resume, setResume] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
+  const [showResumePreview, setShowResumePreview] = useState(false);
 
   useEffect(() => {
     fetchUserProfile();
@@ -26,7 +28,7 @@ const UserProfile = () => {
           Authorization: `Bearer ${token}`
         }
       });
-      
+
       console.log('Profile response:', response.data); // Debug log
       setUser(response.data);
       setResume(response.data.resumeUrl);
@@ -67,7 +69,7 @@ const UserProfile = () => {
 
   const handleViewResume = () => {
     if (resume) {
-      window.open(resume, '_blank');
+      setShowResumePreview(true);
     }
   };
 
@@ -219,6 +221,12 @@ const UserProfile = () => {
           </div>
         </main>
       </div>
+      {showResumePreview && (
+        <ResumePreview
+          resumeUrl={resume}
+          onClose={() => setShowResumePreview(false)}
+        />
+      )}
     </div>
   );
 };
