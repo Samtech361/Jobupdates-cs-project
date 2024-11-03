@@ -1,11 +1,13 @@
-import React, { useState } from 'react';
+import { useState } from 'react';
 import axios from '../components/axios';
 import { useNavigate } from 'react-router-dom';
 import { Eye, EyeOff, Loader } from 'lucide-react';
 import { ToastContainer, toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
+import { useAuth } from '../utils/AuthContext';
 
 export default function Login() {
+  const { login } = useAuth();
   const navigate = useNavigate();
   const [formData, setFormData] = useState({
     email: '',
@@ -71,9 +73,8 @@ export default function Login() {
         }
       );
 
-      // Store the token and user data
-      localStorage.setItem('token', response.data.token);
-      localStorage.setItem('user', JSON.stringify(response.data.user));
+      // Use the login function from AuthContext
+      login(response.data.token, response.data.user);
 
       toast.success('Login successful!');
 

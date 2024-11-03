@@ -1,9 +1,11 @@
-import React, { useState } from 'react';
+import { useState } from 'react';
 import axios from '../components/axios';
 import { useNavigate } from 'react-router-dom';
 import { Eye, EyeOff, Loader } from 'lucide-react';
+import { useAuth } from '../utils/AuthContext';
 
 export default function Register() {
+  const { login } = useAuth();
   const navigate = useNavigate();
   const [formData, setFormData] = useState({
     username: '',
@@ -83,8 +85,8 @@ export default function Register() {
         }
       );
 
-      // Store the token
-      localStorage.setItem('token', response.data.token);
+      // Using the login function from context instead of directly setting token
+      login(response.data.token, response.data.user);
       
       // Redirect to dashboard
       navigate('/');

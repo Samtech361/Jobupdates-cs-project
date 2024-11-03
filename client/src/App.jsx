@@ -8,10 +8,11 @@ import PrivateRoute from './utils/PrivateRoute'
 import UserProfile from './pages/userProfile'
 import Upload from './pages/Upload'
 import JobDetailPage from "./components/JobDetailPage"
+import { AuthProvider } from './utils/AuthContext';
 
 function App() {
   return (
-    <>
+    <AuthProvider>
       <Navbar />
           <Routes>
             <Route path='/' element={<Dashboard/>} />
@@ -24,7 +25,7 @@ function App() {
             <Route path="/job/:id" element={<JobDetailPage />} />
           </Routes>
       
-    </>
+    </AuthProvider>
   )
 }
 

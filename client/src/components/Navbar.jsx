@@ -1,13 +1,13 @@
 import React, { useState, useEffect } from 'react';
 import { Link, NavLink, useLocation } from 'react-router-dom';
 import { User, LogOut, Menu, X, Search, Building2, Upload, Info, LogIn } from 'lucide-react';
-import tokenService from '../utils/tokenRefresh';
+import { useAuth } from '../utils/AuthContext';
 
 export default function Navbar() {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [isProfileDropdownOpen, setIsProfileDropdownOpen] = useState(false);
   const [scrolled, setScrolled] = useState(false);
-  const [isAuthenticated, setIsAuthenticated] = useState(false);
+  const { isAuthenticated, logout } = useAuth();
   const location = useLocation();
 
   useEffect(() => {
@@ -23,14 +23,9 @@ export default function Navbar() {
     setIsMenuOpen(false);
   }, [location]);
 
-  // Check authentication status
-  useEffect(() => {
-    const token = tokenService.getToken();
-    setIsAuthenticated(!!token && !tokenService.isTokenExpired(token));
-  }, []);;
 
   const handleLogout = () => {
-    tokenService.logout();
+    logout();
   };
 
   const navItems = [
