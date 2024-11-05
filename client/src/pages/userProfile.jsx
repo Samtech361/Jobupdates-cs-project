@@ -39,6 +39,7 @@ const UserProfile = () => {
       setLoading(false);
     }
   };
+  
 
   const handleResumeUpload = async (event) => {
     const file = event.target.files[0];
