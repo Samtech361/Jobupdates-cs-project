@@ -1,110 +1,107 @@
 import React, { useState } from 'react';
-import { Loader2, CheckCircle, XCircle } from 'lucide-react';
+import { Loader2, XCircle, AlertCircle } from 'lucide-react';
+import axios from '../components/axios';
+import tokenService from '../utils/tokenRefresh';
 
-const ResumeRecommendations = ({ jobId }) => {
-  const [recommendations, setRecommendations] = useState(null);
+const TechSkillsGap = ({ jobId }) => {
+  const [analysis, setAnalysis] = useState(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
 
-  const fetchRecommendations = async () => {
+  const analyzeTechSkills = async () => {
     try {
       setLoading(true);
       setError(null);
       
+      const searchQuery = localStorage.getItem('lastSearchQuery');
       const response = await axios.get(`/api/jobs/${jobId}/recommendations`, {
-        headers: { "Content-Type": "application/json" },
-        withCredentials: true
+        params: { searchQuery }
       });
       
-      const data = JSON.parse(response.data.recommendations);
-      setRecommendations(data);
+      setAnalysis(response.data);
     } catch (error) {
-      setError(error.response?.data?.message || 'Failed to get recommendations');
+      if (error.response?.status === 401) {
+        tokenService.logout();
+        return;
+      }
+      
+      setError(
+        error.response?.data?.message || 
+        'Failed to analyze technical skills. Please try again.'
+      );
     } finally {
       setLoading(false);
     }
   };
 
+  const CategorySection = ({ title, skills }) => {
+    if (!skills || skills.length === 0) return null;
+    
+    return (
+      <div className="mb-4">
+        <h4 className="text-sm font-medium text-gray-700 mb-2">{title}</h4>
+        <div className="flex flex-wrap gap-2">
+          {skills.map((skill, index) => (
+            <span
+              key={index}
+              className="bg-red-100 text-red-800 px-3 py-1 rounded-full text-sm"
+            >
+              {skill}
+            </span>
+          ))}
+        </div>
+      </div>
+    );
+  };
+
   return (
     <div className="mt-8 space-y-4">
       <div className="flex justify-between items-center">
-        <h2 className="text-xl font-semibold">Resume Recommendations</h2>
+        <h2 className="text-xl font-semibold">Technical Skills Gap Analysis</h2>
         <button
-          onClick={fetchRecommendations}
+          onClick={analyzeTechSkills}
           disabled={loading}
-          className={`
-            flex items-center gap-2 px-4 py-2 rounded-md
-            bg-blue-600 text-white font-medium
-            hover:bg-blue-700 transition-colors
-            disabled:opacity-50 disabled:cursor-not-allowed
-          `}
+          className="flex items-center gap-2 px-4 py-2 rounded-md bg-blue-600 text-white font-medium hover:bg-blue-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
         >
           {loading ? (
-            <Loader2 className="h-4 w-4 animate-spin" />
+            <>
+              <Loader2 className="h-4 w-4 animate-spin" />
+              Analyzing...
+            </>
           ) : (
-            'Get Recommendations'
+            'Analyze Skills'
           )}
         </button>
       </div>
 
       {error && (
-        <div className="flex gap-3 p-4 rounded-lg bg-red-50 border border-red-200">
-          <XCircle className="h-5 w-5 text-red-500 flex-shrink-0" />
+        <div className="flex items-start gap-3 p-4 rounded-lg bg-red-50 border border-red-200">
+          <XCircle className="h-5 w-5 text-red-600 flex-shrink-0" />
           <div>
-            <h4 className="font-medium text-red-800">Error</h4>
+            <h3 className="font-semibold text-red-800">Error</h3>
             <p className="text-red-700">{error}</p>
           </div>
         </div>
       )}
 
-      {recommendations && (
-        <div className="space-y-6 bg-white rounded-lg shadow-lg p-6">
-          {/* Skills Gap Analysis */}
-          <div>
-            <h3 className="font-semibold text-lg mb-2">Skills Gap Analysis</h3>
-            <ul className="list-disc pl-5 space-y-1">
-              {recommendations.skillsGap.map((skill, index) => (
-                <li key={index} className="text-gray-700">{skill}</li>
-              ))}
-            </ul>
-          </div>
-
-          {/* Missing Keywords */}
-          <div>
-            <h3 className="font-semibold text-lg mb-2">Missing Keywords</h3>
-            <div className="flex flex-wrap gap-2">
-              {recommendations.missingKeywords.map((keyword, index) => (
-                <span
-                  key={index}
-                  className="bg-blue-100 text-blue-800 px-2 py-1 rounded-full text-sm"
-                >
-                  {keyword}
-                </span>
-              ))}
-            </div>
-          </div>
-
-          {/* Specific Recommendations */}
-          <div>
-            <h3 className="font-semibold text-lg mb-2">Recommendations</h3>
-            <ul className="space-y-2">
-              {recommendations.recommendations.map((rec, index) => (
-                <li key={index} className="flex items-start gap-2">
-                  <CheckCircle className="h-5 w-5 text-green-500 flex-shrink-0 mt-0.5" />
-                  <span className="text-gray-700">{rec}</span>
-                </li>
-              ))}
-            </ul>
-          </div>
-
-          {/* Resume Modifications */}
-          <div>
-            <h3 className="font-semibold text-lg mb-2">Suggested Resume Updates</h3>
-            <div className="bg-gray-50 p-4 rounded-lg">
-              <pre className="whitespace-pre-wrap text-sm text-gray-700">
-                {recommendations.resumeModifications}
-              </pre>
-            </div>
+      {analysis && (
+        <div className="bg-white rounded-lg shadow-lg p-6">
+          <div className="mb-6">
+            <h3 className="font-semibold text-lg mb-2 flex items-center gap-2">
+              <AlertCircle className="h-5 w-5 text-red-500" />
+              Missing Technical Skills
+            </h3>
+            <p className="text-gray-600 mb-4">
+              These technical skills are required for the job but not found in your resume:
+            </p>
+            
+            {Object.keys(analysis.missing).map(category => (
+              <CategorySection 
+                key={category}
+                title={category.charAt(0).toUpperCase() + category.slice(1)}
+                skills={analysis.missing[category]}
+              />
+            ))}
           </div>
         </div>
       )}
@@ -112,4 +109,4 @@ const ResumeRecommendations = ({ jobId }) => {
   );
 };
 
-export default ResumeRecommendations;
+export default TechSkillsGap;
